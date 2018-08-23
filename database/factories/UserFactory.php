@@ -21,3 +21,7 @@ $factory->define(App\User::class, function (Faker $faker) {
         'remember_token' => str_random(10),
     ];
 });
+
+$factory->afterCreatingState(App\User::class, 'Owner', function ($user, $faker) {
+    factory(App\Hunt::class)->create(['owner_id' => $user->id]);
+});
