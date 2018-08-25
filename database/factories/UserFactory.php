@@ -22,6 +22,12 @@ $factory->define(App\User::class, function (Faker $faker) {
     ];
 });
 
+$factory->afterCreatingState(App\User::class, 'Participant', function ($user, $faker) {
+    $owner = factory(App\User::class)->create();
+    $hunts = factory(App\Hunt::class, $faker->numberBetween(5, 10))->create(['owner_id' => $owner->id]);
+    $user->hunts()->attach($hunts);
+});
+
 $factory->afterCreatingState(App\User::class, 'Owner', function ($user, $faker) {
-    factory(App\Hunt::class)->create(['owner_id' => $user->id]);
+    factory(App\Hunt::class, $faker->numberBetween(1, 3))->create(['owner_id' => $user->id]);
 });

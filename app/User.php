@@ -27,7 +27,7 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    public function hunt()
+    public function ownedHunts()
     {
         return $this->hasMany('App\Hunt', 'owner_id');
     }

@@ -2,20 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Hunt;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     /**
      * Show the application dashboard.
      *
@@ -23,6 +14,9 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $owned_hunts = auth()->check() ? auth()->user()->ownedHunts : collect();
+        $participating_hunts = auth()->check() ? auth()->user()->hunts : collect();
+
+        return view('home', compact('owned_hunts', 'participating_hunts'));
     }
 }
