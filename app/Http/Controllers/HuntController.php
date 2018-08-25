@@ -15,7 +15,7 @@ class HuntController extends Controller
      */
     public function index()
     {
-        $hunts = Hunt::all();
+        $hunts = Hunt::where('owner_id', '!=', auth()->id())->get();
         return view('hunt.index', compact('hunts'));
     }
 
@@ -124,7 +124,8 @@ class HuntController extends Controller
      */
     public function addUser(Hunt $hunt, User $user)
     {
-        abort_if(auth()->id() !== $user->id, 401, 'You do not have permission to add this user to the Scavenger Hunt.');
+        abort_if(auth()->id() !== $user->id, 401);
+        abort_if($hunt->owner->id === $user->id, 403);
 
         $hunt->participants()->attach($user);
         return redirect()->back()->with('success', 'You successfully joined the Scavenger Hunt "' . $hunt->name . '".');

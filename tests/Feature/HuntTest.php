@@ -80,10 +80,18 @@ class HuntTest extends TestCase
     public function test_a_user_can_view_hunts_to_join()
     {
         $user = factory(User::class)->states('Participant')->create();
-        factory(User::class, 5)->states('Owner')->create();
         $response = $this->actingAs($user)->get(route('hunt.index'));
 
         $response->assertSeeTextInOrder(Hunt::all()->pluck('name')->all());
+    }
+
+    public function test_a_user_cannot_view_owned_hunts_to_join()
+    {
+        factory(User::class)->states('Participant')->create();
+        $owner = factory(User::class)->states('Owner')->create();
+        $response = $this->actingAs($owner)->get(route('hunt.index'));
+
+        $response->assertSeeTextInOrder(Hunt::where('owner_id', '!=', $owner->id)->get()->pluck('name')->all());
     }
 
     public function test_a_user_can_join_a_hunt()
@@ -102,6 +110,24 @@ class HuntTest extends TestCase
                 ->first()
         );
         $response->assertSessionHas('success', 'You successfully joined the Scavenger Hunt "' . $hunt->name . '".');
+    }
+
+    public function test_a_user_cannot_join_a_hunt_they_own()
+    {
+        $user = factory(User::class)->states('Owner')->create();
+        $hunt = $user->ownedHunts->first();
+
+        $response = $this->actingAs($user)
+            ->post(route('hunt.add_user', ['hunt' => $hunt->id, 'user' => $user->id]));
+
+        $this->assertNull(
+            Hunt::whereId($hunt->id)
+                ->whereHas('participants', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })
+                ->first()
+        );
+        $response->assertStatus(403);
     }
 
     public function test_a_user_can_leave_a_hunt()
