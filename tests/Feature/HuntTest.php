@@ -147,4 +147,16 @@ class HuntTest extends TestCase
         );
         $response->assertSessionHas('success', 'You successfully left the Scavenger Hunt "' . $hunt->name . '".');
     }
+
+    public function test_a_user_can_see_a_hunts_detail_page()
+    {
+        $user = factory(User::class)->states('Participant')->create();
+        $hunt = $user->hunts->first();
+
+        $response = $this->actingAs($user)->get(route('hunt.show', ['hunt' => $hunt->id]));
+
+        $response->assertSeeText($hunt->name);
+        $response->assertSeeText($hunt->owner->name);
+        $response->assertSeeTextInOrder($hunt->participants->pluck('name')->all());
+    }
 }

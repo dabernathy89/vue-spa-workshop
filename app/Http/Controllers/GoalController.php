@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Goal;
+use App\Hunt;
+use Validator;
 use Illuminate\Http\Request;
 
 class GoalController extends Controller
@@ -30,12 +32,27 @@ class GoalController extends Controller
     /**
      * Store a newly created resource in storage.
      *
+     * @param  \App\Hunt  $hunt
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Hunt $hunt, Request $request)
     {
-        //
+        abort_if($hunt->owner->id !== auth()->id(), 401);
+
+        $input = $request->validate([
+            'title' => 'required|max:255',
+        ]);
+
+        if ($hunt->goals()->whereTitle($input['title'])->first() ?? false) {
+            return redirect()->back()->withErrors(['title' => 'There is already a goal with that title']);
+        }
+
+        $goal = Goal::create(array_merge([
+            'hunt_id' => $hunt->id,
+        ], $input));
+
+        return redirect()->back()->with('success', 'You successfully added the goal "' . $goal->title . '".');
     }
 
     /**
@@ -75,11 +92,16 @@ class GoalController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param  \App\Hunt  $hunt
      * @param  \App\Goal  $goal
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Goal $goal)
+    public function destroy(Hunt $hunt, Goal $goal)
     {
-        //
+        abort_if($hunt->owner->id !== auth()->id(), 401);
+
+        $goal->delete();
+
+        return redirect()->back()->with('success', 'You successfully deleted the goal "' . $goal->title . '".');
     }
 }

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Goal extends Model
 {
+    protected $guarded = [];
+
     public function hunt()
     {
         return $this->belongsTo('App\Hunt');

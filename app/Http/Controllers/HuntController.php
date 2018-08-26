@@ -56,7 +56,7 @@ class HuntController extends Controller
      */
     public function show(Hunt $hunt)
     {
-        //
+        return view('hunt.show', compact('hunt'));
     }
 
     /**

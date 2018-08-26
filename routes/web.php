@@ -21,6 +21,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/hunts/create', 'HuntController@store')->name('hunt.store');
     Route::delete('/hunts/{hunt}', 'HuntController@destroy')->name('hunt.delete');
     Route::get('/hunts/{hunt}', 'HuntController@show')->name('hunt.show');
-    Route::post('/hunts/{hunt}/user/{user}', 'HuntController@addUser')->name('hunt.add_user');
-    Route::delete('/hunts/{hunt}/user/{user}', 'HuntController@removeUser')->name('hunt.remove_user');
+    Route::post('/hunts/{hunt}/users/{user}', 'HuntController@addUser')->name('hunt.add_user');
+    Route::delete('/hunts/{hunt}/users/{user}', 'HuntController@removeUser')->name('hunt.remove_user');
+
+    Route::post('/hunts/{hunt}/goals', 'GoalController@store')->name('hunt.goal.store');
+    Route::delete('/hunts/{hunt}/goals/{goal}', 'GoalController@destroy')->name('hunt.goal.delete');
 });
