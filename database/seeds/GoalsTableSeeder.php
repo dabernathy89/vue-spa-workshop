@@ -1,5 +1,6 @@
 <?php
 
+use App\Solution;
 use Illuminate\Database\Seeder;
 use Faker\Generator as Faker;
 
@@ -13,9 +14,18 @@ class GoalsTableSeeder extends Seeder
     public function run(Faker $faker)
     {
         App\Hunt::get()->each(function ($hunt) use ($faker) {
-            factory(App\Goal::class, $faker->numberBetween(4, 8))->create([
+            $goals = factory(App\Goal::class, $faker->numberBetween(4, 8))->create([
                 'hunt_id' => $hunt->id,
             ]);
+
+            $goals->each(function ($goal) use ($faker) {
+                $goal->hunt->participants->shuffle()->take($faker->numberBetween(0, 3))->each(function ($participant) use ($goal, $faker) {
+                    $goal->solutions()->save(Solution::make([
+                        'title' => $faker->sentence(),
+                        'user_id' => $participant->id
+                    ]));
+                });
+            });
         });
     }
 }

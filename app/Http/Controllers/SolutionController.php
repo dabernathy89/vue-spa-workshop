@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Solution;
+use App\Goal;
 use Illuminate\Http\Request;
 
 class SolutionController extends Controller
@@ -30,12 +31,25 @@ class SolutionController extends Controller
     /**
      * Store a newly created resource in storage.
      *
+     * @param  \App\Goal  $goal
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Goal $goal, Request $request)
     {
-        //
+        abort_if(!$goal->hunt->participants->pluck('id')->contains(auth()->id()), 401);
+        abort_if($goal->solutions->pluck('user_id')->contains(auth()->id()), 422);
+
+        $input = $request->validate([
+            'title' => 'required|max:255',
+        ]);
+
+        $solution = Solution::make(array_merge([
+            'user_id' => auth()->id()
+        ], $input));
+        $goal->solutions()->save($solution);
+
+        return redirect()->back()->with('success', 'You successfully added the solution "' . $solution->title . '".');
     }
 
     /**
@@ -63,13 +77,23 @@ class SolutionController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Goal  $goal
      * @param  \App\Solution  $solution
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Solution $solution)
+    public function update(Goal $goal, Solution $solution, Request $request)
     {
-        //
+        abort_if($solution->user_id !== auth()->id(), 401);
+
+        $input = $request->validate([
+            'title' => 'required|max:255',
+        ]);
+
+        $solution->title = $input['title'];
+        $solution->save();
+
+        return redirect()->back()->with('success', 'You successfully edited the solution "' . $solution->title . '".');
     }
 
     /**

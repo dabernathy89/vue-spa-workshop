@@ -10,9 +10,14 @@
                     <small>Owned by: <em>{{ $hunt->owner->name }}</em></small>
                 </div>
 
-                @if ($hunt->owner->id === auth()->id())
+                @if ($errors->any())
                     <div class="card-body">
                         @include('partials.errors')
+                    </div>
+                @endif
+
+                @if ($hunt->owner->id === auth()->id())
+                    <div class="card-body">
                         <form action="{{ route('hunt.goal.store', ['hunt' => $hunt->id]) }}" method="POST">
                             @csrf
                             <div class="form-row">
@@ -30,25 +35,14 @@
                     </div>
                 @endif
 
-                <div class="card-body">
-                    <h3>Goals</h3>
-                    <ul class="list-group">
-                        @forelse ($hunt->goals as $goal)
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                {{ $goal->title }}
-                                @if ($hunt->owner->id === auth()->id())
-                                    <form action="{{ route('hunt.goal.delete', ['hunt' => $hunt->id, 'goal' => $goal->id]) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button title="Delete Goal" class="border-0 bg-transparent" type="submit"><i class="fas fa-trash"></i></button>
-                                    </form>
-                                @endif
-                            </li>
-                        @empty
-                            <li class="list-group-item"><em>This Scavenger Hunt does not have any goals yet.</em></li>
-                        @endforelse
-                    </ul>
-                </div>
+                @if($hunt->participants->pluck('id')->contains(auth()->id()) || $hunt->owner->id === auth()->id())
+                    <div class="card-body">
+                        <h3>Goals</h3>
+                        <ul class="list-group">
+                            @include('hunt.partials.goals-list')
+                        </ul>
+                    </div>
+                @endif
 
                 <div class="card-body">
                     <h3>Participants</h3>

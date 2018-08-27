@@ -26,4 +26,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::post('/hunts/{hunt}/goals', 'GoalController@store')->name('hunt.goal.store');
     Route::delete('/hunts/{hunt}/goals/{goal}', 'GoalController@destroy')->name('hunt.goal.delete');
+
+    Route::post('/goals/{goal}/solutions', 'SolutionController@store')->name('solution.store');
+    Route::patch('/goals/{goal}/solutions/{solution}', 'SolutionController@update')->name('solution.update');
 });

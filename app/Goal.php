@@ -15,6 +15,6 @@ class Goal extends Model
 
     public function solutions()
     {
-        return $this->hasMany('App\Solutions');
+        return $this->hasMany('App\Solution');
     }
 }

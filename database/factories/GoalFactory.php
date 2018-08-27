@@ -9,7 +9,7 @@ $factory->define(App\Goal::class, function (Faker $faker) {
 });
 
 $factory->afterCreating(App\Goal::class, function ($goal, $faker) {
-    if ($faker->boolean(40)) {
+    if ($faker->boolean(40) && $goal->hunt->participants->count()) {
         $num_users = $faker->numberBetween(1, $goal->hunt->participants->count());
         $users = $faker->randomElements($goal->hunt->participants->all(), $num_users);
         collect($users)->each(function ($user) use ($goal) {
