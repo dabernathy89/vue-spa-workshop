@@ -13,7 +13,10 @@
 
             @auth
             <div class="card mb-3">
-                <div class="card-header">My Scavenger Hunts</div>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    My Scavenger Hunts
+                    <a href="{{ route('hunt.create') }}"><i class="fas fa-plus-square"></i></a>
+                </div>
                 @if (!$owned_hunts->isEmpty())
                     <ul class="list-group list-group-flush">
                         @foreach($owned_hunts as $hunt)
