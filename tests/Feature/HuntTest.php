@@ -159,4 +159,59 @@ class HuntTest extends TestCase
         $response->assertSeeText($hunt->owner->name);
         $response->assertSeeTextInOrder($hunt->participants->pluck('name')->all());
     }
+
+    public function test_an_owner_can_end_a_hunt()
+    {
+        $this->withoutExceptionHandling();
+        $user = factory(User::class)->states('Owner')->create();
+        $hunt = $user->ownedHunts->first();
+        $hunt->status = 'open';
+        $hunt->save();
+
+        $response = $this->actingAs($user)
+            ->patch(
+                route('hunt.update', ['hunt' => $hunt->id]),
+                ['status' => 'closed']
+            );
+
+        $this->assertSame('closed', $hunt->fresh()->status);
+        $response->assertSessionHas('success', 'You have successfully closed the Scavenger Hunt "' . $hunt->name . '".');
+    }
+
+    public function test_a_participant_cannot_end_a_hunt()
+    {
+        $user = factory(User::class)->states('Participant')->create();
+        $hunt = $user->hunts->first();
+        $hunt->status = 'open';
+        $hunt->save();
+
+        $response = $this->actingAs($user)
+            ->patch(
+                route('hunt.update', ['hunt' => $hunt->id]),
+                ['status' => 'closed']
+            );
+
+        $this->assertSame('open', $hunt->fresh()->status);
+        $response->assertStatus(401);
+    }
+
+    public function test_an_owner_can_choose_a_winner()
+    {
+        $user = factory(User::class)->states('Participant')->create();
+        $hunt = $user->hunts->first();
+
+        $response = $this->actingAs($hunt->owner)
+            ->patch(
+                route('hunt.update', ['hunt' => $hunt->id]),
+                ['winner_id' => $user->id]
+            );
+
+        $this->assertSame('closed', $hunt->fresh()->status);
+        $this->assertSame($user->id, $hunt->fresh()->winner_id);
+        $response->assertSessionHas('success', 'You have successfully chosen a winner for the Scavenger Hunt "' . $hunt->name . '".');
+    }
+
+    // TODO tests
+    // a user cannot delete or add goals to a closed Hunt
+    // a user cannot add or edit solutions to a closed Hunt
 }

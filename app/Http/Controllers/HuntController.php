@@ -43,6 +43,7 @@ class HuntController extends Controller
 
         $hunt = Hunt::create(array_merge([
             'owner_id' => auth()->user()->id,
+            'status' => 'open',
         ], $input));
 
         return redirect()->route('home')->with('success', 'You successfully created the Scavenger Hunt "' . $hunt->name . '".');
@@ -73,13 +74,39 @@ class HuntController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @param  \App\Hunt  $hunt
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Hunt $hunt)
+    public function update(Hunt $hunt, Request $request)
     {
-        //
+        abort_if($hunt->owner->id !== auth()->id(), 401);
+        abort_if(!empty($input['winner_id']) && !$hunt->participants->pluck('id')->contains($input['winner_id']), 422);
+
+        $input = $request->validate([
+            'name' => 'sometimes|required|max:255',
+            'status' => 'sometimes|in:open,closed',
+            'winner_id' => 'integer|exists:users,id',
+        ]);
+
+        $hunt->name = $input['name'] ?? $hunt->name;
+        $hunt->status = $input['status'] ?? $hunt->status;
+        $hunt->winner_id = $input['winner_id'] ?? $hunt->winner_id;
+
+        if ($hunt->winner_id) {
+            $hunt->status = 'closed';
+        }
+
+        $message = 'You have successfully updated the Scavenger Hunt "' . $hunt->name . '".';
+        if ($hunt->isDirty('winner_id') && $hunt->winner_id) {
+            $message = 'You have successfully chosen a winner for the Scavenger Hunt "' . $hunt->name . '".';
+        } elseif ($hunt->isDirty('status') && $hunt->status === 'closed') {
+            $message = 'You have successfully closed the Scavenger Hunt "' . $hunt->name . '".';
+        }
+
+        $hunt->save();
+
+        return redirect()->back()->with('success', $message);
     }
 
     /**

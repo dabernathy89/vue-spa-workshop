@@ -17,16 +17,10 @@
                 @if (!$owned_hunts->isEmpty())
                     <ul class="list-group list-group-flush">
                         @foreach($owned_hunts as $hunt)
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <li class="list-group-item">
                                 <a href="{{ route('hunt.show', ['hunt' => $hunt->id]) }}">
                                     {{ $hunt->name }}
                                 </a>
-
-                                <form action="{{ route('hunt.delete', ['hunt' => $hunt->id]) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button title="Delete Scavenger Hunt" class="border-0 bg-transparent" type="submit"><i class="fas fa-trash"></i></button>
-                                </form>
                             </li>
                         @endforeach
                     </ul>

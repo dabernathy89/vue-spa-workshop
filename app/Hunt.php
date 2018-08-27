@@ -22,4 +22,9 @@ class Hunt extends Model
     {
         return $this->hasMany('App\Goal');
     }
+
+    public function winner()
+    {
+        return $this->belongsTo('App\User', 'winner_id');
+    }
 }
