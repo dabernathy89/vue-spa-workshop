@@ -210,8 +210,4 @@ class HuntTest extends TestCase
         $this->assertSame($user->id, $hunt->fresh()->winner_id);
         $response->assertSessionHas('success', 'You have successfully chosen a winner for the Scavenger Hunt "' . $hunt->name . '".');
     }
-
-    // TODO tests
-    // a user cannot delete or add goals to a closed Hunt
-    // a user cannot add or edit solutions to a closed Hunt
 }

@@ -15,7 +15,7 @@
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     My Scavenger Hunts
-                    <a href="{{ route('hunt.create') }}"><i class="fas fa-plus-square"></i></a>
+                    <a class="btn btn-secondary" href="{{ route('hunt.create') }}"><i class="fas fa-plus-square"></i></a>
                 </div>
                 @if (!$owned_hunts->isEmpty())
                     <ul class="list-group list-group-flush">

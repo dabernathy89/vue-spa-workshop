@@ -39,6 +39,7 @@ class GoalController extends Controller
     public function store(Hunt $hunt, Request $request)
     {
         abort_if($hunt->owner->id !== auth()->id(), 401);
+        abort_if($hunt->status === 'closed', 422);
 
         $input = $request->validate([
             'title' => 'required|max:255',
@@ -99,6 +100,7 @@ class GoalController extends Controller
     public function destroy(Hunt $hunt, Goal $goal)
     {
         abort_if($hunt->owner->id !== auth()->id(), 401);
+        abort_if($hunt->status === 'closed', 422);
 
         $goal->delete();
 

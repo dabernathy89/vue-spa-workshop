@@ -16,7 +16,6 @@ class CreateSolutionsTable extends Migration
         Schema::create('solutions', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
-            $table->boolean('selected')->default(false);
             $table->unsignedInteger('goal_id');
             $table->foreign('goal_id')->references('id')->on('goals')->onDelete('cascade');
             $table->unsignedInteger('user_id');

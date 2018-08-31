@@ -17,7 +17,7 @@
                     @if ($hunt->owner->id === auth()->id())
                         <div class="mt-3">
                             @if ($hunt->status === 'open')
-                                <form style="display: inline-block;" action="{{ route('hunt.update', ['hunt' => $hunt->id]) }}" method="POST">
+                                <form class="d-inline-block" action="{{ route('hunt.update', ['hunt' => $hunt->id]) }}" method="POST">
                                     @csrf
                                     @method('PATCH')
                                     <input type="hidden" name="status" value="closed">
@@ -27,7 +27,7 @@
                                 </form>
                             @endif
 
-                            <form style="display: inline-block;" action="{{ route('hunt.delete', ['hunt' => $hunt->id]) }}" method="POST">
+                            <form class="d-inline-block" action="{{ route('hunt.delete', ['hunt' => $hunt->id]) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button title="Delete Scavenger Hunt" class="btn btn-danger" type="submit">
@@ -48,7 +48,7 @@
                     <div class="card-body">
                         <h3>Goals</h3>
 
-                        @if ($hunt->owner->id === auth()->id())
+                        @if ($hunt->status === 'open' && $hunt->owner->id === auth()->id())
                             <form class="mb-3 mt-3" action="{{ route('hunt.goal.store', ['hunt' => $hunt->id]) }}" method="POST">
                                 @csrf
                                 <div class="form-row">
