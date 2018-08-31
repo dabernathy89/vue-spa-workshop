@@ -64,38 +64,44 @@
                         @endif
 
                         <ul class="list-group">
-                            @include('hunt.partials.goals-list')
+                            @if ($hunt->owner->id === auth()->id())
+                                @include('hunt.partials.owner-goals-list')
+                            @else
+                                @include('hunt.partials.participant-goals-list')
+                            @endif
                         </ul>
                     </div>
                 @endif
 
-                <div class="card-body">
-                    <h3>Participants</h3>
-                    <ul class="list-group">
-                        @forelse ($hunt->participants as $participant)
-                            @if ($hunt->winner_id === $participant->id)
-                                <li class="list-group-item list-group-item-success">
-                                    {{ $participant->name }} <strong>- winner</strong>
-                                </li>
-                            @elseif ($hunt->owner_id !== auth()->id() || !empty($hunt->winner_id))
-                                <li class="list-group-item">{{ $participant->name }}</li>
-                            @elseif ($hunt->owner_id === auth()->id())
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    {{ $participant->name }}
+                @if ($hunt->owner->id === auth()->id())
+                    <div class="card-body">
+                        <h3>Participants</h3>
+                        <ul class="list-group">
+                            @forelse ($hunt->participants as $participant)
+                                @if ($hunt->winner_id === $participant->id)
+                                    <li class="list-group-item list-group-item-success">
+                                        {{ $participant->name }} <strong>- winner</strong>
+                                    </li>
+                                @elseif ($hunt->owner_id !== auth()->id() || !empty($hunt->winner_id))
+                                    <li class="list-group-item">{{ $participant->name }}</li>
+                                @elseif ($hunt->owner_id === auth()->id())
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ $participant->name }}
 
-                                    <form action="{{ route('hunt.update', ['hunt' => $hunt->id]) }}" method="POST">
-                                        @csrf
-                                        @method('PATCH')
-                                        <input type="hidden" name="winner_id" value="{{ $participant->id }}">
-                                        <button title="Choose Winner" class="border-0 bg-transparent" type="submit"><i class="fas fa-trophy"></i></button>
-                                    </form>
-                                </li>
-                            @endif
-                        @empty
-                            <li class="list-group-item"><em>This Scavenger Hunt does not have any participants yet.</em></li>
-                        @endforelse
-                    </ul>
-                </div>
+                                        <form action="{{ route('hunt.update', ['hunt' => $hunt->id]) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="hidden" name="winner_id" value="{{ $participant->id }}">
+                                            <button title="Choose Winner" class="border-0 bg-transparent" type="submit"><i class="fas fa-trophy"></i></button>
+                                        </form>
+                                    </li>
+                                @endif
+                            @empty
+                                <li class="list-group-item"><em>This Scavenger Hunt does not have any participants yet.</em></li>
+                            @endforelse
+                        </ul>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
