@@ -74,7 +74,7 @@ class HuntTest extends TestCase
             ->delete(route('hunt.delete', ['hunt' => $hunt->id]));
 
         $this->assertNotNull(Hunt::find($hunt->id));
-        $response->assertStatus(401);
+        $response->assertStatus(403);
     }
 
     public function test_a_user_can_view_hunts_to_join()
@@ -98,6 +98,7 @@ class HuntTest extends TestCase
     {
         $user = factory(User::class)->create();
         $hunt = factory(User::class)->states('Owner')->create()->ownedHunts->first();
+        $hunt->update(['status' => 'open']);
 
         $response = $this->actingAs($user)
             ->post(route('hunt.add_user', ['hunt' => $hunt->id, 'user' => $user->id]));
@@ -110,6 +111,25 @@ class HuntTest extends TestCase
                 ->first()
         );
         $response->assertSessionHas('success', 'You successfully joined the Scavenger Hunt "' . $hunt->name . '".');
+    }
+
+    public function test_a_user_cannot_join_a_closed_hunt()
+    {
+        $user = factory(User::class)->create();
+        $hunt = factory(User::class)->states('Owner')->create()->ownedHunts->first();
+        $hunt->update(['status' => 'closed']);
+
+        $response = $this->actingAs($user)
+            ->post(route('hunt.add_user', ['hunt' => $hunt->id, 'user' => $user->id]));
+
+        $this->assertNull(
+            Hunt::whereId($hunt->id)
+                ->whereHas('participants', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })
+                ->first()
+        );
+        $response->assertStatus(422);
     }
 
     public function test_a_user_cannot_join_a_hunt_they_own()
@@ -192,7 +212,7 @@ class HuntTest extends TestCase
             );
 
         $this->assertSame('open', $hunt->fresh()->status);
-        $response->assertStatus(401);
+        $response->assertStatus(403);
     }
 
     public function test_an_owner_can_choose_a_winner()

@@ -80,7 +80,7 @@ class HuntController extends Controller
      */
     public function update(Hunt $hunt, Request $request)
     {
-        abort_if($hunt->owner->id !== auth()->id(), 401);
+        abort_if($hunt->owner->id !== auth()->id(), 403);
         abort_if(!empty($input['winner_id']) && !$hunt->participants->pluck('id')->contains($input['winner_id']), 422);
 
         $input = $request->validate([
@@ -117,7 +117,7 @@ class HuntController extends Controller
      */
     public function destroy(Hunt $hunt)
     {
-        abort_if($hunt->owner->id !== auth()->id(), 401, 'You do not have permission to delete that Scavenger Hunt.');
+        abort_if($hunt->owner->id !== auth()->id(), 403, 'You do not have permission to delete that Scavenger Hunt.');
 
         $hunt->delete();
         return redirect()->route('home')->with('success', 'Scavenger Hunt "' . $hunt->name . '" was successfully deleted.');
@@ -134,7 +134,7 @@ class HuntController extends Controller
     {
         abort_if(
             auth()->id() !== $user->id || !$hunt->participants->pluck('id')->contains($user->id),
-            401,
+            403,
             'You do not have permission to remove the user from the Scavenger Hunt.'
         );
 
@@ -151,10 +151,10 @@ class HuntController extends Controller
      */
     public function addUser(Hunt $hunt, User $user)
     {
-        abort_if(auth()->id() !== $user->id, 401);
-        abort_if($hunt->owner->id === $user->id, 403);
+        abort_if(auth()->id() !== $user->id || $hunt->owner->id === $user->id, 403);
+        abort_if($hunt->status === 'closed', 422);
 
         $hunt->participants()->attach($user);
-        return redirect()->back()->with('success', 'You successfully joined the Scavenger Hunt "' . $hunt->name . '".');
+        return redirect()->route('hunt.show', ['hunt' => $hunt->id])->with('success', 'You successfully joined the Scavenger Hunt "' . $hunt->name . '".');
     }
 }

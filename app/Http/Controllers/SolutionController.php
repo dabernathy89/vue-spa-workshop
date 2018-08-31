@@ -37,7 +37,7 @@ class SolutionController extends Controller
      */
     public function store(Goal $goal, Request $request)
     {
-        abort_if(!$goal->hunt->participants->pluck('id')->contains(auth()->id()), 401);
+        abort_if(!$goal->hunt->participants->pluck('id')->contains(auth()->id()), 403);
         abort_if($goal->hunt->status === 'closed' || $goal->solutions->pluck('user_id')->contains(auth()->id()), 422);
 
         $input = $request->validate([
@@ -84,7 +84,7 @@ class SolutionController extends Controller
      */
     public function update(Goal $goal, Solution $solution, Request $request)
     {
-        abort_if($solution->user_id !== auth()->id(), 401);
+        abort_if($solution->user_id !== auth()->id(), 403);
         abort_if($goal->hunt->status === 'closed', 422);
 
         $input = $request->validate([

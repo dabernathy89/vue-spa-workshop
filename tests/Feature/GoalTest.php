@@ -49,7 +49,7 @@ class GoalTest extends TestCase
             ->post(route('hunt.goal.store', ['hunt' => $hunt->id]), ['title' => 'Dictumst eleifend integer']);
 
         $this->assertNull($hunt->goals()->get()->first());
-        $response->assertStatus(401);
+        $response->assertStatus(403);
     }
 
     public function test_a_user_can_see_goals_on_a_hunt()
@@ -68,6 +68,7 @@ class GoalTest extends TestCase
     {
         $user = factory(User::class)->states('Owner')->create();
         $hunt = $user->ownedHunts->first();
+        $hunt->update(['status' => 'open']);
         $goal = factory(Goal::class)->create(['hunt_id' => $hunt->id]);
 
         $response = $this->actingAs($user)
@@ -87,7 +88,7 @@ class GoalTest extends TestCase
             ->delete(route('hunt.goal.delete', ['hunt' => $hunt->id, 'goal' => $goal->id]));
 
         $this->assertNotNull($hunt->goals()->get()->first());
-        $response->assertStatus(401);
+        $response->assertStatus(403);
     }
 
     public function test_an_owner_cannot_delete_goals_in_a_closed_hunt()

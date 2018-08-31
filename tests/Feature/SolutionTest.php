@@ -72,7 +72,7 @@ class SolutionTest extends TestCase
 
         $solution = $hunt->goals->first()->solutions->first();
         $this->assertNull($solution);
-        $response->assertStatus(401);
+        $response->assertStatus(403);
     }
 
     public function test_a_user_cannot_add_multiple_solutions_to_a_goal()
