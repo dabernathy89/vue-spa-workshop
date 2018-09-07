@@ -17,6 +17,7 @@ class GoalTest extends TestCase
     {
         $user = factory(User::class)->states('Owner')->create();
         $hunt = $user->ownedHunts->first();
+        $hunt->update(['status' => 'open']);
 
         $response = $this->actingAs($user)
             ->post(route('hunt.goal.store', ['hunt' => $hunt->id]), ['title' => 'Dictumst eleifend integer']);
@@ -54,6 +55,7 @@ class GoalTest extends TestCase
 
     public function test_a_user_can_see_goals_on_a_hunt()
     {
+        $this->withoutExceptionHandling();
         $user = factory(User::class)->states('Participant')->create();
         $hunt = $user->hunts()->first();
         factory(Goal::class, 5)->create(['hunt_id' => $hunt->id]);

@@ -15,7 +15,11 @@
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     My Scavenger Hunts
-                    <a class="btn btn-secondary" href="{{ route('hunt.create') }}"><i class="fas fa-plus-square"></i></a>
+                    @if (!$owned_hunts->isEmpty())
+                        <a class="btn btn-primary" href="{{ route('hunt.create') }}">
+                            Create <i class="fas fa-plus-square"></i>
+                        </a>
+                    @endif
                 </div>
                 @if (!$owned_hunts->isEmpty())
                     <ul class="list-group list-group-flush">
@@ -30,7 +34,7 @@
                 @else
                     <div class="card-body">
                         <p>It looks like you don't currently own any scavenger hunts. Create one now:</p>
-                        <a class="btn btn-secondary" href="{{ route('hunt.create') }}">Create A Scavenger Hunt</a>
+                        <a class="btn btn-primary" href="{{ route('hunt.create') }}">Create A Scavenger Hunt</a>
                     </div>
                 @endif
             </div>
@@ -48,7 +52,9 @@
                                 <form action="{{ route('hunt.remove_user', ['hunt' => $hunt->id, 'user' => auth()->id()]) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
-                                    <button title="Leave Scavenger Hunt" class="border-0 bg-transparent" type="submit"><i class="fas fa-sign-out-alt"></i></button>
+                                    <button title="Leave Scavenger Hunt" class="btn btn-secondary" type="submit">
+                                        Leave <i class="fas fa-sign-out-alt"></i>
+                                    </button>
                                 </form>
                             </li>
                         @endforeach
@@ -56,7 +62,7 @@
                 @else
                     <div class="card-body">
                         <p>It looks like you haven't joined any scavenger hunts. Join one now:</p>
-                        <a class="btn btn-secondary" href="{{ route('hunt.index') }}">Join A Scavenger Hunt</a>
+                        <a class="btn btn-primary" href="{{ route('hunt.index') }}">Join A Scavenger Hunt</a>
                     </div>
                 @endif
             </div>

@@ -80,7 +80,7 @@ class HuntController extends Controller
      */
     public function update(Hunt $hunt, Request $request)
     {
-        abort_if($hunt->owner->id !== auth()->id(), 403);
+        abort_if($hunt->owner->id !== auth()->id() || $hunt->isClosed, 403);
         abort_if(!empty($input['winner_id']) && !$hunt->participants->pluck('id')->contains($input['winner_id']), 422);
 
         $input = $request->validate([
@@ -100,7 +100,7 @@ class HuntController extends Controller
         $message = 'You have successfully updated the Scavenger Hunt "' . $hunt->name . '".';
         if ($hunt->isDirty('winner_id') && $hunt->winner_id) {
             $message = 'You have successfully chosen a winner for the Scavenger Hunt "' . $hunt->name . '".';
-        } elseif ($hunt->isDirty('status') && $hunt->status === 'closed') {
+        } elseif ($hunt->isDirty('status') && $hunt->isClosed) {
             $message = 'You have successfully closed the Scavenger Hunt "' . $hunt->name . '".';
         }
 
@@ -124,7 +124,7 @@ class HuntController extends Controller
     }
 
     /**
-     * Remove a user from a scaventer hunt
+     * Remove a user from a scavenger hunt
      *
      * @param  \App\Hunt  $hunt
      * @param  \App\User  $user
@@ -143,7 +143,7 @@ class HuntController extends Controller
     }
 
     /**
-     * Adds a user to a scaventer hunt
+     * Adds a user to a scavenger hunt
      *
      * @param  \App\Hunt  $hunt
      * @param  \App\User  $user
@@ -152,7 +152,7 @@ class HuntController extends Controller
     public function addUser(Hunt $hunt, User $user)
     {
         abort_if(auth()->id() !== $user->id || $hunt->owner->id === $user->id, 403);
-        abort_if($hunt->status === 'closed', 422);
+        abort_if($hunt->isClosed, 422);
 
         $hunt->participants()->attach($user);
         return redirect()->route('hunt.show', ['hunt' => $hunt->id])->with('success', 'You successfully joined the Scavenger Hunt "' . $hunt->name . '".');

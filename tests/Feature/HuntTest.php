@@ -219,6 +219,7 @@ class HuntTest extends TestCase
     {
         $user = factory(User::class)->states('Participant')->create();
         $hunt = $user->hunts->first();
+        $hunt->update(['status' => 'open']);
 
         $response = $this->actingAs($hunt->owner)
             ->patch(
@@ -229,5 +230,22 @@ class HuntTest extends TestCase
         $this->assertSame('closed', $hunt->fresh()->status);
         $this->assertSame($user->id, $hunt->fresh()->winner_id);
         $response->assertSessionHas('success', 'You have successfully chosen a winner for the Scavenger Hunt "' . $hunt->name . '".');
+    }
+
+    public function test_an_owner_cannot_choose_a_winner_on_a_closed_hunt()
+    {
+        $user = factory(User::class)->states('Participant')->create();
+        $hunt = $user->hunts->first();
+        $hunt->update(['status' => 'closed']);
+
+        $response = $this->actingAs($hunt->owner)
+            ->patch(
+                route('hunt.update', ['hunt' => $hunt->id]),
+                ['winner_id' => $user->id]
+            );
+
+        $this->assertSame('closed', $hunt->fresh()->status);
+        $this->assertNull($hunt->fresh()->winner_id);
+        $response->assertStatus(403);
     }
 }

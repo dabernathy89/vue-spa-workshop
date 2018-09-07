@@ -25,6 +25,9 @@
         form button {
             cursor: pointer;
         }
+        .btn .fas {
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>

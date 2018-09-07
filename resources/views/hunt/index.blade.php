@@ -9,21 +9,19 @@
                 <ul class="list-group list-group-flush">
                     @foreach($hunts as $hunt)
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <a href="{{ route('hunt.show', ['hunt' => $hunt->id]) }}">
-                                {{ $hunt->name }}
-                            </a>
+                            <span>
+                                <a href="{{ route('hunt.show', ['hunt' => $hunt->id]) }}">
+                                    {{ $hunt->name }}
+                                </a>
+                                @if ($hunt->isClosed)
+                                    - <em>closed</em>
+                                @endif
+                            </span>
 
-                            @if (!auth()->user()->hunts->pluck('id')->contains($hunt->id))
-                                <form action="{{ route('hunt.add_user', ['hunt' => $hunt->id, 'user' => auth()->id()]) }}" method="POST">
-                                    @csrf
-                                    <button title="Join Scavenger Hunt" class="border-0 bg-transparent" type="submit"><i class="fas fa-user-plus"></i></button>
-                                </form>
-                            @else
-                                <form action="{{ route('hunt.remove_user', ['hunt' => $hunt->id, 'user' => auth()->id()]) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button title="Leave Scavenger Hunt" class="border-0 bg-transparent" type="submit"><i class="fas fa-sign-out-alt"></i></button>
-                                </form>
+                            @if (!$hunt->includesUser(auth()->user()) && $hunt->isOpen)
+                                @include('hunt.partials.join-hunt-button')
+                            @elseif ($hunt->isOpen)
+                                @include('hunt.partials.leave-hunt-button')
                             @endif
                         </li>
                     @endforeach

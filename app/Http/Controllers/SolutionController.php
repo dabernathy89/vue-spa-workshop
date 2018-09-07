@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Solution;
 use App\Goal;
+use Storage;
 use Illuminate\Http\Request;
 
 class SolutionController extends Controller
@@ -41,15 +42,18 @@ class SolutionController extends Controller
         abort_if($goal->hunt->status === 'closed' || $goal->solutions->pluck('user_id')->contains(auth()->id()), 422);
 
         $input = $request->validate([
-            'title' => 'required|max:255',
+            'image' => 'required|image|max:2000',
         ]);
 
-        $solution = Solution::make(array_merge([
-            'user_id' => auth()->id()
-        ], $input));
+        $path = $request->file('image')->store(null, 'public');
+
+        $solution = Solution::make([
+            'user_id' => auth()->id(),
+            'image' => $path,
+        ]);
         $goal->solutions()->save($solution);
 
-        return redirect()->back()->with('success', 'You successfully added the solution "' . $solution->title . '".');
+        return redirect()->back()->with('success', 'You successfully added a solution.');
     }
 
     /**
@@ -88,13 +92,16 @@ class SolutionController extends Controller
         abort_if($goal->hunt->status === 'closed', 422);
 
         $input = $request->validate([
-            'title' => 'required|max:255',
+            'image' => 'required|image|max:2000',
         ]);
 
-        $solution->title = $input['title'];
-        $solution->save();
+        Storage::disk('public')->delete($solution->image);
 
-        return redirect()->back()->with('success', 'You successfully edited the solution "' . $solution->title . '".');
+        $solution->update([
+            'image' => $request->file('image')->store(null, 'public')
+        ]);
+
+        return redirect()->back()->with('success', 'You successfully updated a solution.');
     }
 
     /**

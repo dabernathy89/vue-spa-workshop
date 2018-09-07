@@ -21,7 +21,7 @@ class GoalsTableSeeder extends Seeder
             $goals->each(function ($goal) use ($faker) {
                 $goal->hunt->participants->shuffle()->take($faker->numberBetween(0, 3))->each(function ($participant) use ($goal, $faker) {
                     $goal->solutions()->save(Solution::make([
-                        'title' => $faker->sentence(),
+                        'image' => 'https://picsum.photos/' . $faker->numberBetween(300, 900) . '/' . $faker->numberBetween(300, 900) . '/?random',
                         'user_id' => $participant->id
                     ]));
                 });
