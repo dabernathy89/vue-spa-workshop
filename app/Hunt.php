@@ -8,6 +8,11 @@ class Hunt extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'owner_id' => 'integer',
+        'winner_id' => 'integer',
+    ];
+
     public function owner()
     {
         return $this->belongsTo('App\User', 'owner_id');

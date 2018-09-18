@@ -22,7 +22,7 @@ class CreateHuntsTable extends Migration
             $table->timestamps();
 
             $table->foreign('owner_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('winner_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('winner_id')->references('id')->on('users')->onDelete('SET NULL');
         });
     }
 

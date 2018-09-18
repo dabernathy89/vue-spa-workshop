@@ -8,6 +8,10 @@ class Goal extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'hunt_id' => 'integer'
+    ];
+
     public function hunt()
     {
         return $this->belongsTo('App\Hunt');

@@ -8,6 +8,11 @@ class Solution extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'user_id' => 'integer',
+        'goal_id' => 'integer',
+    ];
+
     public function goal()
     {
         return $this->belongsTo('App\Goal');
