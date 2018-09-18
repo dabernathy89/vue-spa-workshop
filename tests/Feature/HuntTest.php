@@ -77,23 +77,6 @@ class HuntTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_a_user_can_view_hunts_to_join()
-    {
-        $user = factory(User::class)->states('Participant')->create();
-        $response = $this->actingAs($user)->get(route('hunt.index'));
-
-        $response->assertSeeTextInOrder(Hunt::all()->pluck('name')->all());
-    }
-
-    public function test_a_user_cannot_view_owned_hunts_to_join()
-    {
-        factory(User::class)->states('Participant')->create();
-        $owner = factory(User::class)->states('Owner')->create();
-        $response = $this->actingAs($owner)->get(route('hunt.index'));
-
-        $response->assertSeeTextInOrder(Hunt::where('owner_id', '!=', $owner->id)->get()->pluck('name')->all());
-    }
-
     public function test_a_user_can_join_a_hunt()
     {
         $user = factory(User::class)->create();
@@ -196,6 +179,24 @@ class HuntTest extends TestCase
 
         $this->assertSame('closed', $hunt->fresh()->status);
         $response->assertSessionHas('success', 'You have successfully closed the Scavenger Hunt "' . $hunt->name . '".');
+    }
+
+    public function test_an_owner_can_reopen_a_hunt()
+    {
+        $this->withoutExceptionHandling();
+        $user = factory(User::class)->states('Owner')->create();
+        $hunt = $user->ownedHunts->first();
+        $hunt->status = 'closed';
+        $hunt->save();
+
+        $response = $this->actingAs($user)
+            ->patch(
+                route('hunt.update', ['hunt' => $hunt->id]),
+                ['status' => 'open']
+            );
+
+        $this->assertSame('open', $hunt->fresh()->status);
+        $response->assertSessionHas('success', 'You have successfully reopened the Scavenger Hunt "' . $hunt->name . '".');
     }
 
     public function test_a_participant_cannot_end_a_hunt()

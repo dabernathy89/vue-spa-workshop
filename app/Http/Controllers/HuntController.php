@@ -57,7 +57,24 @@ class HuntController extends Controller
      */
     public function show(Hunt $hunt)
     {
-        return view('hunt.show', compact('hunt'));
+        if ($hunt->ownedBy(auth()->user())) {
+            return view('hunt.showOwner', compact('hunt'));
+        }
+
+        return view('hunt.showParticipant', compact('hunt'));
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Hunt  $hunt
+     * @return \Illuminate\Http\Response
+     */
+    public function showSolutions(Hunt $hunt)
+    {
+        if ($hunt->ownedBy(auth()->user())) {
+            return view('hunt.showSolutions', compact('hunt'));
+        }
     }
 
     /**
@@ -80,7 +97,8 @@ class HuntController extends Controller
      */
     public function update(Hunt $hunt, Request $request)
     {
-        abort_if($hunt->owner->id !== auth()->id() || $hunt->isClosed, 403);
+        abort_if($hunt->owner->id !== auth()->id(), 403);
+        abort_if($hunt->isClosed && $request->input('status') !== 'open', 403);
         abort_if(!empty($input['winner_id']) && !$hunt->participants->pluck('id')->contains($input['winner_id']), 422);
 
         $input = $request->validate([
@@ -91,10 +109,15 @@ class HuntController extends Controller
 
         $hunt->name = $input['name'] ?? $hunt->name;
         $hunt->status = $input['status'] ?? $hunt->status;
-        $hunt->winner_id = $input['winner_id'] ?? $hunt->winner_id;
+        $hunt->winner_id = ($input['winner_id'] ?? $hunt->winner_id);
 
-        if ($hunt->winner_id) {
+        if ($hunt->winner_id && $hunt->isDirty('winner_id')) {
             $hunt->status = 'closed';
+        }
+
+        // If we are re-opening a hunt, remove the winner
+        if ($hunt->isDirty('status') && $hunt->isOpen) {
+            $hunt->winner_id = null;
         }
 
         $message = 'You have successfully updated the Scavenger Hunt "' . $hunt->name . '".';
@@ -102,6 +125,8 @@ class HuntController extends Controller
             $message = 'You have successfully chosen a winner for the Scavenger Hunt "' . $hunt->name . '".';
         } elseif ($hunt->isDirty('status') && $hunt->isClosed) {
             $message = 'You have successfully closed the Scavenger Hunt "' . $hunt->name . '".';
+        } elseif ($hunt->isDirty('status') && $hunt->isOpen) {
+            $message = 'You have successfully reopened the Scavenger Hunt "' . $hunt->name . '".';
         }
 
         $hunt->save();

@@ -40,30 +40,28 @@
             </div>
 
             <div class="card">
-                <div class="card-header">Scavenger Hunts I've Joined</div>
-                @if (!$participating_hunts->isEmpty())
+                <div class="card-header">Other Scavenger Hunts</div>
+                @if (!$other_hunts->isEmpty())
                     <ul class="list-group list-group-flush">
-                        @foreach($participating_hunts as $hunt)
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                    @foreach($other_hunts as $hunt)
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
                                 <a href="{{ route('hunt.show', ['hunt' => $hunt->id]) }}">
                                     {{ $hunt->name }}
                                 </a>
+                                @if ($hunt->isClosed)
+                                    - <em>closed</em>
+                                @endif
+                            </span>
 
-                                <form action="{{ route('hunt.remove_user', ['hunt' => $hunt->id, 'user' => auth()->id()]) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button title="Leave Scavenger Hunt" class="btn btn-secondary" type="submit">
-                                        Leave <i class="fas fa-sign-out-alt"></i>
-                                    </button>
-                                </form>
-                            </li>
-                        @endforeach
+                            @if (!$hunt->includesUser(auth()->user()) && $hunt->isOpen)
+                                @include('hunt.partials.join-hunt-button')
+                            @elseif ($hunt->isOpen)
+                                @include('hunt.partials.leave-hunt-button')
+                            @endif
+                        </li>
+                    @endforeach
                     </ul>
-                @else
-                    <div class="card-body">
-                        <p>It looks like you haven't joined any scavenger hunts. Join one now:</p>
-                        <a class="btn btn-primary" href="{{ route('hunt.index') }}">Join A Scavenger Hunt</a>
-                    </div>
                 @endif
             </div>
             @endauth

@@ -17,4 +17,9 @@ class Solution extends Model
     {
         return $this->belongsTo('App\User');
     }
+
+    public function getImageSrcAttribute()
+    {
+        return str_contains($this->image, 'http') ? $this->image : asset('storage/' . $this->image);
+    }
 }

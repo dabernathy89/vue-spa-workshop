@@ -18,10 +18,11 @@ Route::get('/', 'HomeController@index')->name('home');
 Route::group(['middleware' => ['auth']], function () {
     Route::get('/hunts', 'HuntController@index')->name('hunt.index');
     Route::get('/hunts/create', 'HuntController@create')->name('hunt.create');
-    Route::post('/hunts/create', 'HuntController@store')->name('hunt.store');
+    Route::post('/hunts', 'HuntController@store')->name('hunt.store');
     Route::patch('/hunts/{hunt}', 'HuntController@update')->name('hunt.update');
     Route::delete('/hunts/{hunt}', 'HuntController@destroy')->name('hunt.delete');
     Route::get('/hunts/{hunt}', 'HuntController@show')->name('hunt.show');
+    Route::get('/hunts/{hunt}/solutions', 'HuntController@showSolutions')->name('hunt.show.solutions');
     Route::post('/hunts/{hunt}/users/{user}', 'HuntController@addUser')->name('hunt.add_user');
     Route::delete('/hunts/{hunt}/users/{user}', 'HuntController@removeUser')->name('hunt.remove_user');
 

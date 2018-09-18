@@ -41,13 +41,13 @@ class SolutionTest extends TestCase
         $user = factory(User::class)->states('Participant')->create();
         $hunt = $user->hunts->first();
         $hunt->goals()->save(Goal::make(['title' => 'Dolor conubia mollis']));
-        $solution = Solution::make(['image' => '/storage/foo.jpg', 'user_id' => $user->id]);
+        $solution = Solution::make(['image' => 'foo.jpg', 'user_id' => $user->id]);
         $hunt->goals->first()->solutions()->save($solution);
 
         $response = $this->actingAs($user)
             ->get(route('hunt.show', ['hunt' => $hunt->id]));
 
-        $response->assertSee('src="' . asset($solution->fresh()->image) . '"');
+        $response->assertSee('src="' . asset($solution->fresh()->imageSrc) . '"');
     }
 
     public function test_a_participant_can_edit_their_submitted_solutions()
@@ -58,7 +58,7 @@ class SolutionTest extends TestCase
         $hunt = $user->hunts->first();
         $hunt->update(['status' => 'open']);
         $hunt->goals()->save(Goal::make(['title' => 'Dolor conubia mollis']));
-        $solution = Solution::make(['image' => '/storage/foo.jpg', 'user_id' => $user->id]);
+        $solution = Solution::make(['image' => 'foo.jpg', 'user_id' => $user->id]);
         $hunt->goals->first()->solutions()->save($solution);
 
         $response = $this->actingAs($user)
@@ -95,7 +95,7 @@ class SolutionTest extends TestCase
         $hunt = $user->hunts->first();
         $hunt->goals()->save(Goal::make(['title' => 'Dolor conubia mollis']));
         $goal = $hunt->goals->first();
-        $hunt->goals->first()->solutions()->save(Solution::make(['image' => '/storage/foo.jpg', 'user_id' => $user->id]));
+        $hunt->goals->first()->solutions()->save(Solution::make(['image' => 'foo.jpg', 'user_id' => $user->id]));
 
         $response = $this->actingAs($user)
             ->post(route('solution.store', ['goal' => $goal->id]), ['image' => $file]);
@@ -131,33 +131,34 @@ class SolutionTest extends TestCase
         $hunt = $user->hunts->first();
         $hunt->goals()->save(Goal::make(['title' => 'Dolor conubia mollis']));
         $goal = $hunt->goals->first();
-        $solution = Solution::make(['image' => '/storage/foo.jpg', 'user_id' => $user->id]);
+        $solution = Solution::make(['image' => 'foo.jpg', 'user_id' => $user->id]);
         $hunt->goals->first()->solutions()->save($solution);
         $hunt->update(['status' => 'closed']);
 
         $response = $this->actingAs($user)
             ->patch(route('solution.update', ['goal' => $hunt->goals->first()->id, 'solution' => $solution->id]), ['image' => $file]);
 
-        $this->assertSame('/storage/foo.jpg', $solution->fresh()->image);
+        $this->assertSame('foo.jpg', $solution->fresh()->image);
         Storage::disk('public')->assertMissing($file->hashName());
         $response->assertStatus(422);
     }
 
     public function test_an_owner_can_see_the_submitted_solutions()
     {
+        $this->withoutExceptionHandling();
         $user = factory(User::class)->states('Participant')->create();
         $hunt = $user->hunts->first();
         $hunt->goals()->save(Goal::make(['title' => 'Dolor conubia mollis']));
-        $solutions = ['/storage/potenti.jpg', '/storage/sodales.jpg', '/storage/bibendum.jpg'];
+        $solutions = ['potenti.jpg', 'sodales.jpg', 'bibendum.jpg'];
         $hunt->goals->first()->solutions()->save(Solution::make(['image' => $solutions[0], 'user_id' => $user->id]));
         $hunt->goals->first()->solutions()->save(Solution::make(['image' => $solutions[1], 'user_id' => $user->id]));
         $hunt->goals->first()->solutions()->save(Solution::make(['image' => $solutions[2], 'user_id' => $user->id]));
 
         $response = $this->actingAs($hunt->owner)
-            ->get(route('hunt.show', ['hunt' => $hunt->id]));
+            ->get(route('hunt.show.solutions', ['hunt' => $hunt->id]));
 
         $solutions = collect($solutions)->map(function ($solution) {
-            return 'src="' . asset($solution) . '"';
+            return 'src="' . asset('storage/' . $solution) . '"';
         })->all();
 
         $response->assertSeeInOrder($solutions);

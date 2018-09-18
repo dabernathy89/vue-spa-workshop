@@ -15,8 +15,8 @@ class HomeController extends Controller
     public function index()
     {
         $owned_hunts = auth()->check() ? auth()->user()->ownedHunts : collect();
-        $participating_hunts = auth()->check() ? auth()->user()->hunts : collect();
+        $other_hunts = $hunts = Hunt::where('owner_id', '!=', auth()->id())->get();
 
-        return view('home', compact('owned_hunts', 'participating_hunts'));
+        return view('home', compact('owned_hunts', 'other_hunts'));
     }
 }

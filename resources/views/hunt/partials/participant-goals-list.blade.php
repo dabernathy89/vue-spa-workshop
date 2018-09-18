@@ -16,7 +16,7 @@
 
         @if ($user_solution)
             <div class="alert alert-secondary mt-2 d-flex justify-content-between align-items-start">
-                <span>Your solution: </span><img style="height: auto; width: 50%;" src="{{ asset($user_solution->image) }}">
+                <span>Your solution: </span><img style="height: auto; width: 50%;" src="{{ $user_solution->imageSrc }}">
             </div>
         @endif
 
