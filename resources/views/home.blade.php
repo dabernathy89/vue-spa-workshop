@@ -35,28 +35,24 @@
 
             <div class="card">
                 <div class="card-header">Other Scavenger Hunts</div>
-                @if (!$other_hunts->isEmpty())
-                    <ul class="list-group list-group-flush">
-                    @foreach($other_hunts as $hunt)
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>
-                                <a href="{{ route('hunt.show', ['hunt' => $hunt->id]) }}">
-                                    {{ $hunt->name }}
-                                </a>
-                                @if ($hunt->isClosed)
-                                    - <em>closed</em>
-                                @endif
-                            </span>
+                <ul v-if="otherHunts.length" class="list-group list-group-flush">
+                    <li v-for="hunt in otherHunts" class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>
+                            <a :href="'/hunts/' + hunt.id">
+                                @{{ hunt.name }}
+                            </a>
+                            <template v-if="hunt.is_closed">
+                                - <em>closed</em>
+                            </template>
+                        </span>
 
-                            @if (!$hunt->includesUser(auth()->user()) && $hunt->isOpen)
-                                @include('hunt.partials.join-hunt-button')
-                            @elseif ($hunt->isOpen)
-                                @include('hunt.partials.leave-hunt-button')
-                            @endif
-                        </li>
-                    @endforeach
-                    </ul>
-                @endif
+                        {{-- @if (!$hunt->includesUser(auth()->user()) && $hunt->isOpen)
+                            <button title="Join Scavenger Hunt" class="btn btn-secondary" type="submit">Join <i class="fas fa-user-plus"></i></button>
+                        @elseif ($hunt->isOpen)
+                            <button title="Leave Scavenger Hunt" class="btn btn-secondary" type="submit">Leave <i class="fas fa-sign-out-alt"></i></button>
+                        @endif --}}
+                    </li>
+                </ul>
             </div>
             @endauth
         </div>
@@ -70,7 +66,8 @@
         el: '#app',
         data: {
             ownedHunts: @json($owned_hunts),
-        }
+            otherHunts: @json($other_hunts),
+        },
     });
 </script>
 @endsection
