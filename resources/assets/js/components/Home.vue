@@ -17,14 +17,16 @@
 
                 <ul v-if="ownedHunts.length" class="list-group list-group-flush">
                     <li v-for="hunt in ownedHunts" class="list-group-item">
-                        <a :href="'hunts/' + hunt.id">
+                        <router-link :to="{ path: '/hunts/' + hunt.id }">
                             {{ hunt.name }}
-                        </a>
+                        </router-link>
                     </li>
                 </ul>
                 <div v-else class="card-body">
                     <p>It looks like you don't currently own any scavenger hunts. Create one now:</p>
-                    <a class="btn btn-primary" href="/hunts/create">Create A Scavenger Hunt</a>
+                    <router-link class="btn btn-primary" :to="{ path: '/hunts/create'}">
+                        Create A Scavenger Hunt
+                    </router-link>
                 </div>
             </div>
 
@@ -33,9 +35,9 @@
                 <ul v-if="otherHunts.length" class="list-group list-group-flush">
                     <li v-for="(hunt, index) in otherHunts" class="list-group-item d-flex justify-content-between align-items-center">
                         <span>
-                            <a :href="'/hunts/' + hunt.id">
+                            <router-link :to="{ path: '/hunts/' + hunt.id}">
                                 {{ hunt.name }}
-                            </a>
+                            </router-link>
                             <template v-if="hunt.is_closed">
                                 - <em>closed</em>
                             </template>

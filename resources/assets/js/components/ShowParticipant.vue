@@ -85,18 +85,18 @@
 
 <script>
 export default {
+    props: ['hunt'],
+
     data() {
         return {
             successMessage: '',
             errors: [],
-            hunt: null,
             currentUserId: null,
             currentSolutionForm: null,
         }
     },
 
     mounted() {
-        this.hunt = window.currentHunt;
         this.currentUserId = window.currentUserId;
     },
 

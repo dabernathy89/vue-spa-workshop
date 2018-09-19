@@ -7,15 +7,17 @@ Vue.use(VueRouter)
 
 import Home from './components/Home.vue';
 import Create from './components/Create.vue';
-import ShowOwner from './components/ShowOwner.vue';
-import ShowParticipant from './components/ShowParticipant.vue';
+import ShowHunt from './components/ShowHunt.vue';
+Vue.component('show-owner', require('./components/ShowOwner.vue'));
+Vue.component('show-participant', require('./components/ShowParticipant.vue'));
 import ShowSolutions from './components/ShowSolutions.vue';
 
 const router = new VueRouter({
     mode: 'history',
     routes: [
         { path: '/', component: Home },
-        { path: '/hunts/create', component: Create }
+        { path: '/hunts/create', component: Create },
+        { path: '/hunts/:id', component: ShowHunt }
     ]
 });
 

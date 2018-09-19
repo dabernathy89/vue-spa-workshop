@@ -78,21 +78,18 @@
 
 <script>
 export default {
+    props: ['hunt'],
+
     data() {
         return {
-            hunt: null,
             errors: [],
             goalTitle: '',
         }
     },
 
-    mounted() {
-        this.hunt = window.currentHunt;
-    },
-
     methods: {
         closeHunt: function () {
-            axios.patch('/hunts/' + this.hunt.id, {status: 'closed'})
+            axios.patch('/api/hunts/' + this.hunt.id, {status: 'closed'})
                 .then(response => {
                     this.$emit('success', response.data.successMessage);
                     this.hunt.status = 'closed';
