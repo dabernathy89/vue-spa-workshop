@@ -46,11 +46,21 @@
                             </template>
                         </span>
 
-                        {{-- @if (!$hunt->includesUser(auth()->user()) && $hunt->isOpen)
-                            <button title="Join Scavenger Hunt" class="btn btn-secondary" type="submit">Join <i class="fas fa-user-plus"></i></button>
-                        @elseif ($hunt->isOpen)
-                            <button title="Leave Scavenger Hunt" class="btn btn-secondary" type="submit">Leave <i class="fas fa-sign-out-alt"></i></button>
-                        @endif --}}
+                        <button
+                            v-if="!hunt.includes_current_user && hunt.is_open"
+                            title="Join Scavenger Hunt"
+                            class="btn btn-secondary"
+                            @click="joinHunt(hunt.id)">
+                            Join <i class="fas fa-user-plus"></i>
+                        </button>
+
+                        <button
+                            v-else-if="hunt.is_open"
+                            title="Leave Scavenger Hunt"
+                            class="btn btn-secondary"
+                            @click="leaveHunt(hunt.id)">
+                            Leave <i class="fas fa-sign-out-alt"></i>
+                        </button>
                     </li>
                 </ul>
             </div>
@@ -67,7 +77,22 @@
         data: {
             ownedHunts: @json($owned_hunts),
             otherHunts: @json($other_hunts),
+            currentUserId: {{ auth()->id() }}
         },
+        methods: {
+            joinHunt(id) {
+                axios.post('/hunts/' + id + '/users/' + this.currentUserId)
+                    .then(function (response) {
+                        console.log(response);
+                    });
+            },
+            leaveHunt(id) {
+                axios.delete('/hunts/' + id + '/users/' + this.currentUserId)
+                    .then(function (response) {
+                        console.log(response);
+                    });
+            }
+        }
     });
 </script>
 @endsection
