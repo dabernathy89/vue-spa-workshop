@@ -53,7 +53,10 @@ class GoalController extends Controller
             'hunt_id' => $hunt->id,
         ], $input));
 
-        return redirect()->back()->with('success', 'You successfully added the goal "' . $goal->title . '".');
+        return response()->json([
+            'successMessage' => 'You successfully added the goal "' . $goal->title . '".',
+            'goal' => $goal,
+        ]);
     }
 
     /**
@@ -104,6 +107,6 @@ class GoalController extends Controller
 
         $goal->delete();
 
-        return redirect()->back()->with('success', 'You successfully deleted the goal "' . $goal->title . '".');
+        return response()->json(['successMessage' => 'You successfully deleted the goal "' . $goal->title . '".']);
     }
 }

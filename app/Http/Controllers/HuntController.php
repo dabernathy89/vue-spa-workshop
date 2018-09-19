@@ -132,7 +132,7 @@ class HuntController extends Controller
 
         $hunt->save();
 
-        return redirect()->back()->with('success', $message);
+        return response()->json(['successMessage' => $message]);
     }
 
     /**
@@ -146,7 +146,7 @@ class HuntController extends Controller
         abort_if($hunt->owner->id !== auth()->id(), 403, 'You do not have permission to delete that Scavenger Hunt.');
 
         $hunt->delete();
-        return redirect()->route('home')->with('success', 'Scavenger Hunt "' . $hunt->name . '" was successfully deleted.');
+        return response()->json(['successMessage' => 'Scavenger Hunt "' . $hunt->name . '" was successfully deleted.']);
     }
 
     /**
