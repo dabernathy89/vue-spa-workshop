@@ -7,60 +7,75 @@
             <div class="card">
                 <div class="card-header">
                     <h1>
-                        Solutions for "{{ $hunt->name }}"
+                        Solutions for "@{{ hunt.name }}"
                     </h1>
 
-                    @if ($hunt->winner_id)
-                        <div class="alert alert-success mt-3"><h4 class="mb-0">Winner: {{ $hunt->winner->name }}</h4></div>
-                    @endif
+                    <div v-if="hunt.winner_id" class="alert alert-success mt-3">
+                        <h4 class="mb-0">Winner: @{{ hunt.winner.name }}</h4>
+                    </div>
 
                     <div class="mt-3">
-                        <a href="{{ route('hunt.show', ['hunt' => $hunt->id]) }}" class="btn btn-primary"><i class="fas fa-arrow-left"></i>&nbsp;&nbsp;Back To Goals</a>
+                        <a :href="'/hunts/' + hunt.id" class="btn btn-primary"><i class="fas fa-arrow-left"></i>&nbsp;&nbsp;Back To Goals</a>
                     </div>
                 </div>
 
                 <div class="card-body">
                     <h3>Submitted Solutions</h3>
-                    @forelse ($hunt->participants as $participant)
-                        <div class="card mb-3">
-                            <div class="card-header d-flex justify-content-between align-items-center {{ $hunt->winner_id === $participant->id ? 'text-success' : '' }}">
-                                <h4 class="mb-0">{{ $participant->name }}</h4>
-                                @if ($hunt->winner_id === $participant->id)
-                                    <h5 class="mb-0"><em>Winner</em></h5>
-                                @endif
+                    <div v-for="participant in hunt.participants" class="card mb-3">
+                        <div :class="'card-header d-flex justify-content-between align-items-center ' + (hunt.winner_id === participant.id ? 'text-success' : '')">
+                            <h4 class="mb-0">@{{ participant.name }}</h4>
+                            <h5 v-if="hunt.winner_id === participant.id" class="mb-0"><em>Winner</em></h5>
 
-                                @if (!$hunt->winner_id)
-                                    @include('hunt.partials.choose-winner-button')
-                                @endif
-                            </div>
+                            <button v-if="!hunt.winner_id && hunt.is_open" @click="chooseWinner(participant.id)" title="Choose Winner" class="border-0 bg-transparent"><i class="fas fa-trophy"></i></button>
+                        </div>
 
-                            <div class="card-body">
-                                @if ($participant->solutions->where('goal.hunt_id', $hunt->id)->count())
-                                    <div class="card-columns mt-3">
-                                        @foreach ($participant->solutions->where('goal.hunt_id', $hunt->id) as $solution)
-                                            <div class="card">
-                                                <div class="card-body">
-                                                    <h5 class="card-title mb-0">{{ $solution->goal->title }}</h5>
-                                                </div>
-                                                <img class="card-img-bottom" src="{{ $solution->imageSrc }}">
-                                            </div>
-                                        @endforeach
+                        <div class="card-body">
+                            <div class="card-columns mt-3">
+                                <div v-for="solution in participant.solutions" v-if="solution.goal.hunt_id === hunt.id" class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title mb-0">@{{ solution.goal.title }}</h5>
                                     </div>
-                                @else
-                                    <p>No submitted solutions</p>
-                                @endif
+                                    <img class="card-img-bottom" :src="solution.imageSrc">
+                                </div>
                             </div>
                         </div>
-                    @empty
-                        <div class="card">
-                            <div class="card-body">
-                                <p class="card-text">This Scavenger Hunt does not have any participants yet.</p>
-                            </div>
+                    </div>
+
+                    <div v-if="!hunt.participants.length" class="card">
+                        <div class="card-body">
+                            <p class="card-text">This Scavenger Hunt does not have any participants yet.</p>
                         </div>
-                    @endforelse
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+@endsection
+
+@section('js')
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            successMessage: '',
+            hunt: @json($hunt),
+        },
+        methods: {
+            chooseWinner: function (participantId) {
+                var vm = this;
+                axios.patch('/hunts/' + this.hunt.id, {winner_id: participantId})
+                    .then(function (response) {
+                        vm.successMessage = response.data.successMessage;
+                        vm.hunt.winner = vm.hunt.participants.find(function (participant) {
+                            return participant.id === participantId;
+                        });
+                        vm.hunt.winner_id = participantId;
+                        vm.hunt.status = 'closed';
+                        window.scrollTo({top: 0});
+                    });
+            },
+        }
+    });
+</script>
 @endsection

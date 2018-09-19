@@ -73,6 +73,7 @@ class HuntController extends Controller
      */
     public function showSolutions(Hunt $hunt)
     {
+        $hunt->load('participants.solutions.goal', 'winner');
         if ($hunt->ownedBy(auth()->user())) {
             return view('hunt.showSolutions', compact('hunt'));
         }
