@@ -16070,10 +16070,10 @@ var render = function() {
                   ),
                   _vm.ownedHunts.length
                     ? _c(
-                        "a",
+                        "router-link",
                         {
                           staticClass: "btn btn-primary",
-                          attrs: { href: "/hunts/create/" }
+                          attrs: { to: { path: "/hunts/create" } }
                         },
                         [
                           _vm._v("\n                        Create "),
@@ -16081,7 +16081,8 @@ var render = function() {
                         ]
                       )
                     : _vm._e()
-                ]
+                ],
+                1
               ),
               _vm._v(" "),
               _vm.ownedHunts.length
@@ -16322,6 +16323,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             axios.post('/hunts', { name: this.huntName }).then(function (response) {
                 _this.$emit('success', response.data.successMessage);
                 _this.huntName = '';
+                _this.$router.push({ path: '/' });
             }, function (error) {
                 var errors = error.response.data.errors;
                 for (var field in errors) {

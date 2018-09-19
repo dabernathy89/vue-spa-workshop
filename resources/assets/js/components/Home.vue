@@ -10,9 +10,9 @@
             <div v-if="currentUserId" class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     My Scavenger Hunts
-                    <a v-if="ownedHunts.length" class="btn btn-primary" href="/hunts/create/">
+                    <router-link v-if="ownedHunts.length" class="btn btn-primary" :to="{ path: '/hunts/create'}">
                         Create <i class="fas fa-plus-square"></i>
-                    </a>
+                    </router-link>
                 </div>
 
                 <ul v-if="ownedHunts.length" class="list-group list-group-flush">

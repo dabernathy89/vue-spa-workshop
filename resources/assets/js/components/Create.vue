@@ -41,6 +41,7 @@
                     .then(response => {
                         this.$emit('success', response.data.successMessage);
                         this.huntName = '';
+                        this.$router.push({path: '/'});
                     }, error => {
                         var errors = error.response.data.errors;
                         for (let field in errors) {

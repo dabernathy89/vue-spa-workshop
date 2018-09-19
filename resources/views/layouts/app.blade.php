@@ -50,7 +50,9 @@
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('home') }}">{{ __('Home') }}</a>
+                            <router-link class="nav-link" :to="{ path: '/'}">
+                                Home
+                            </router-link>
                         </li>
                         @guest
                             <li class="nav-item">
