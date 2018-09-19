@@ -980,7 +980,17 @@ window.Vue = __webpack_require__(30);
 Vue.component('home', __webpack_require__(33));
 
 var app = new Vue({
-    el: '#app'
+    el: '#app',
+
+    methods: {
+        success: function success(message) {
+            this.successMessage = message;
+        }
+    },
+
+    data: {
+        successMessage: ''
+    }
 });
 
 /***/ }),
@@ -13334,8 +13344,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         return {
             ownedHunts: [],
             otherHunts: [],
-            currentUserId: null,
-            successMessage: ''
+            currentUserId: null
         };
     },
     mounted: function mounted() {
@@ -13350,7 +13359,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             var _this = this;
 
             axios.post('/hunts/' + id + '/users/' + this.currentUserId).then(function (response) {
-                _this.successMessage = response.data.successMessage;
+                _this.$emit('success', response.data.successMessage);
                 _this.otherHunts[index].includes_current_user = true;
                 window.scrollTo({ top: 0 });
             });
@@ -13359,7 +13368,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             var _this2 = this;
 
             axios.delete('/hunts/' + id + '/users/' + this.currentUserId).then(function (response) {
-                _this2.successMessage = response.data.successMessage;
+                _this2.$emit('success', response.data.successMessage);
                 _this2.otherHunts[index].includes_current_user = false;
                 window.scrollTo({ top: 0 });
             });

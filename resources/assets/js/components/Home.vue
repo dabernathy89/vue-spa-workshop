@@ -71,7 +71,6 @@
                 ownedHunts: [],
                 otherHunts: [],
                 currentUserId: null,
-                successMessage: '',
             }
         },
 
@@ -85,7 +84,7 @@
             joinHunt(id, index) {
                 axios.post('/hunts/' + id + '/users/' + this.currentUserId)
                     .then(response => {
-                        this.successMessage = response.data.successMessage;
+                        this.$emit('success', response.data.successMessage);
                         this.otherHunts[index].includes_current_user = true;
                         window.scrollTo({top: 0});
                     });
@@ -94,7 +93,7 @@
             leaveHunt(id, index) {
                 axios.delete('/hunts/' + id + '/users/' + this.currentUserId)
                     .then(response => {
-                        this.successMessage = response.data.successMessage;
+                        this.$emit('success', response.data.successMessage);
                         this.otherHunts[index].includes_current_user = false;
                         window.scrollTo({top: 0});
                     });
