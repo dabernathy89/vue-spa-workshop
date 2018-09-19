@@ -4,6 +4,9 @@ window.Vue = require('vue');
 
 Vue.component('home', require('./components/Home.vue'));
 Vue.component('create', require('./components/Create.vue'));
+Vue.component('show-owner', require('./components/ShowOwner.vue'));
+Vue.component('show-participant', require('./components/ShowParticipant.vue'));
+Vue.component('show-solutions', require('./components/ShowSolutions.vue'));
 
 const app = new Vue({
     el: '#app',

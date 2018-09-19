@@ -70,7 +70,7 @@
 "use strict";
 
 
-var bind = __webpack_require__(3);
+var bind = __webpack_require__(4);
 var isBuffer = __webpack_require__(14);
 
 /*global toString:true*/
@@ -375,6 +375,115 @@ module.exports = {
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports) {
+
+/* globals __VUE_SSR_CONTEXT__ */
+
+// IMPORTANT: Do NOT use ES2015 features in this file.
+// This module is a runtime utility for cleaner component module output and will
+// be included in the final webpack user bundle.
+
+module.exports = function normalizeComponent (
+  rawScriptExports,
+  compiledTemplate,
+  functionalTemplate,
+  injectStyles,
+  scopeId,
+  moduleIdentifier /* server only */
+) {
+  var esModule
+  var scriptExports = rawScriptExports = rawScriptExports || {}
+
+  // ES6 modules interop
+  var type = typeof rawScriptExports.default
+  if (type === 'object' || type === 'function') {
+    esModule = rawScriptExports
+    scriptExports = rawScriptExports.default
+  }
+
+  // Vue.extend constructor export interop
+  var options = typeof scriptExports === 'function'
+    ? scriptExports.options
+    : scriptExports
+
+  // render functions
+  if (compiledTemplate) {
+    options.render = compiledTemplate.render
+    options.staticRenderFns = compiledTemplate.staticRenderFns
+    options._compiled = true
+  }
+
+  // functional template
+  if (functionalTemplate) {
+    options.functional = true
+  }
+
+  // scopedId
+  if (scopeId) {
+    options._scopeId = scopeId
+  }
+
+  var hook
+  if (moduleIdentifier) { // server build
+    hook = function (context) {
+      // 2.3 injection
+      context =
+        context || // cached call
+        (this.$vnode && this.$vnode.ssrContext) || // stateful
+        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
+      // 2.2 with runInNewContext: true
+      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+        context = __VUE_SSR_CONTEXT__
+      }
+      // inject component styles
+      if (injectStyles) {
+        injectStyles.call(this, context)
+      }
+      // register component module identifier for async chunk inferrence
+      if (context && context._registeredComponents) {
+        context._registeredComponents.add(moduleIdentifier)
+      }
+    }
+    // used by ssr in case component is cached and beforeCreate
+    // never gets called
+    options._ssrRegister = hook
+  } else if (injectStyles) {
+    hook = injectStyles
+  }
+
+  if (hook) {
+    var functional = options.functional
+    var existing = functional
+      ? options.render
+      : options.beforeCreate
+
+    if (!functional) {
+      // inject component registration as beforeCreate hook
+      options.beforeCreate = existing
+        ? [].concat(existing, hook)
+        : [hook]
+    } else {
+      // for template-only hot-reload because in that case the render fn doesn't
+      // go through the normalizer
+      options._injectStyles = hook
+      // register for functioal component in vue file
+      options.render = function renderWithStyleInjection (h, context) {
+        hook.call(context)
+        return existing(h, context)
+      }
+    }
+  }
+
+  return {
+    esModule: esModule,
+    exports: scriptExports,
+    options: options
+  }
+}
+
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -397,10 +506,10 @@ function getDefaultAdapter() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = __webpack_require__(5);
+    adapter = __webpack_require__(6);
   } else if (typeof process !== 'undefined') {
     // For node use HTTP adapter
-    adapter = __webpack_require__(5);
+    adapter = __webpack_require__(6);
   }
   return adapter;
 }
@@ -475,10 +584,10 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(5)))
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports) {
 
 var g;
@@ -505,7 +614,7 @@ module.exports = g;
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -523,7 +632,7 @@ module.exports = function bind(fn, thisArg) {
 
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -713,7 +822,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -724,7 +833,7 @@ var settle = __webpack_require__(17);
 var buildURL = __webpack_require__(19);
 var parseHeaders = __webpack_require__(20);
 var isURLSameOrigin = __webpack_require__(21);
-var createError = __webpack_require__(6);
+var createError = __webpack_require__(7);
 var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(22);
 
 module.exports = function xhrAdapter(config) {
@@ -900,7 +1009,7 @@ module.exports = function xhrAdapter(config) {
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -925,7 +1034,7 @@ module.exports = function createError(message, config, code, request, response) 
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -937,7 +1046,7 @@ module.exports = function isCancel(value) {
 
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -963,115 +1072,6 @@ module.exports = Cancel;
 
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports) {
-
-/* globals __VUE_SSR_CONTEXT__ */
-
-// IMPORTANT: Do NOT use ES2015 features in this file.
-// This module is a runtime utility for cleaner component module output and will
-// be included in the final webpack user bundle.
-
-module.exports = function normalizeComponent (
-  rawScriptExports,
-  compiledTemplate,
-  functionalTemplate,
-  injectStyles,
-  scopeId,
-  moduleIdentifier /* server only */
-) {
-  var esModule
-  var scriptExports = rawScriptExports = rawScriptExports || {}
-
-  // ES6 modules interop
-  var type = typeof rawScriptExports.default
-  if (type === 'object' || type === 'function') {
-    esModule = rawScriptExports
-    scriptExports = rawScriptExports.default
-  }
-
-  // Vue.extend constructor export interop
-  var options = typeof scriptExports === 'function'
-    ? scriptExports.options
-    : scriptExports
-
-  // render functions
-  if (compiledTemplate) {
-    options.render = compiledTemplate.render
-    options.staticRenderFns = compiledTemplate.staticRenderFns
-    options._compiled = true
-  }
-
-  // functional template
-  if (functionalTemplate) {
-    options.functional = true
-  }
-
-  // scopedId
-  if (scopeId) {
-    options._scopeId = scopeId
-  }
-
-  var hook
-  if (moduleIdentifier) { // server build
-    hook = function (context) {
-      // 2.3 injection
-      context =
-        context || // cached call
-        (this.$vnode && this.$vnode.ssrContext) || // stateful
-        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
-      // 2.2 with runInNewContext: true
-      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
-        context = __VUE_SSR_CONTEXT__
-      }
-      // inject component styles
-      if (injectStyles) {
-        injectStyles.call(this, context)
-      }
-      // register component module identifier for async chunk inferrence
-      if (context && context._registeredComponents) {
-        context._registeredComponents.add(moduleIdentifier)
-      }
-    }
-    // used by ssr in case component is cached and beforeCreate
-    // never gets called
-    options._ssrRegister = hook
-  } else if (injectStyles) {
-    hook = injectStyles
-  }
-
-  if (hook) {
-    var functional = options.functional
-    var existing = functional
-      ? options.render
-      : options.beforeCreate
-
-    if (!functional) {
-      // inject component registration as beforeCreate hook
-      options.beforeCreate = existing
-        ? [].concat(existing, hook)
-        : [hook]
-    } else {
-      // for template-only hot-reload because in that case the render fn doesn't
-      // go through the normalizer
-      options._injectStyles = hook
-      // register for functioal component in vue file
-      options.render = function renderWithStyleInjection (h, context) {
-        hook.call(context)
-        return existing(h, context)
-      }
-    }
-  }
-
-  return {
-    esModule: esModule,
-    exports: scriptExports,
-    options: options
-  }
-}
-
-
-/***/ }),
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1088,6 +1088,9 @@ window.Vue = __webpack_require__(31);
 
 Vue.component('home', __webpack_require__(34));
 Vue.component('create', __webpack_require__(37));
+Vue.component('show-owner', __webpack_require__(40));
+Vue.component('show-participant', __webpack_require__(43));
+Vue.component('show-solutions', __webpack_require__(46));
 
 var app = new Vue({
     el: '#app',
@@ -1117,9 +1120,9 @@ module.exports = __webpack_require__(13);
 
 
 var utils = __webpack_require__(0);
-var bind = __webpack_require__(3);
+var bind = __webpack_require__(4);
 var Axios = __webpack_require__(15);
-var defaults = __webpack_require__(1);
+var defaults = __webpack_require__(2);
 
 /**
  * Create an instance of Axios
@@ -1152,9 +1155,9 @@ axios.create = function create(instanceConfig) {
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(8);
+axios.Cancel = __webpack_require__(9);
 axios.CancelToken = __webpack_require__(29);
-axios.isCancel = __webpack_require__(7);
+axios.isCancel = __webpack_require__(8);
 
 // Expose all/spread
 axios.all = function all(promises) {
@@ -1202,7 +1205,7 @@ function isSlowBuffer (obj) {
 "use strict";
 
 
-var defaults = __webpack_require__(1);
+var defaults = __webpack_require__(2);
 var utils = __webpack_require__(0);
 var InterceptorManager = __webpack_require__(24);
 var dispatchRequest = __webpack_require__(25);
@@ -1307,7 +1310,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 "use strict";
 
 
-var createError = __webpack_require__(6);
+var createError = __webpack_require__(7);
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -1740,8 +1743,8 @@ module.exports = InterceptorManager;
 
 var utils = __webpack_require__(0);
 var transformData = __webpack_require__(26);
-var isCancel = __webpack_require__(7);
-var defaults = __webpack_require__(1);
+var isCancel = __webpack_require__(8);
+var defaults = __webpack_require__(2);
 var isAbsoluteURL = __webpack_require__(27);
 var combineURLs = __webpack_require__(28);
 
@@ -1900,7 +1903,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 "use strict";
 
 
-var Cancel = __webpack_require__(8);
+var Cancel = __webpack_require__(9);
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -12955,7 +12958,7 @@ Vue.compile = compileToFunctions;
 
 module.exports = Vue;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(32).setImmediate))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(32).setImmediate))
 
 /***/ }),
 /* 32 */
@@ -13025,7 +13028,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
                          (typeof global !== "undefined" && global.clearImmediate) ||
                          (this && this.clearImmediate);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ }),
 /* 33 */
@@ -13218,14 +13221,14 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(4)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(5)))
 
 /***/ }),
 /* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(9)
+var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(35)
 /* template */
@@ -13573,7 +13576,7 @@ if (false) {
 /***/ (function(module, exports, __webpack_require__) {
 
 var disposed = false
-var normalizeComponent = __webpack_require__(9)
+var normalizeComponent = __webpack_require__(1)
 /* script */
 var __vue_script__ = __webpack_require__(38)
 /* template */
@@ -13766,6 +13769,1206 @@ if (false) {
   module.hot.accept()
   if (module.hot.data) {
     require("vue-hot-reload-api")      .rerender("data-v-0e5f501a", module.exports)
+  }
+}
+
+/***/ }),
+/* 40 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(41)
+/* template */
+var __vue_template__ = __webpack_require__(42)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/ShowOwner.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-23e5728f", Component.options)
+  } else {
+    hotAPI.reload("data-v-23e5728f", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 41 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data: function data() {
+        return {
+            hunt: null,
+            errors: [],
+            goalTitle: ''
+        };
+    },
+    mounted: function mounted() {
+        this.hunt = window.currentHunt;
+    },
+
+
+    methods: {
+        closeHunt: function closeHunt() {
+            var _this = this;
+
+            axios.patch('/hunts/' + this.hunt.id, { status: 'closed' }).then(function (response) {
+                _this.$emit('success', response.data.successMessage);
+                _this.hunt.status = 'closed';
+                _this.hunt.is_closed = true;
+                _this.hunt.is_open = false;
+                window.scrollTo({ top: 0 });
+            });
+        },
+        reopenHunt: function reopenHunt() {
+            var _this2 = this;
+
+            axios.patch('/hunts/' + this.hunt.id, { status: 'open' }).then(function (response) {
+                _this2.$emit('success', response.data.successMessage);
+                _this2.hunt.status = 'open';
+                _this2.hunt.is_closed = false;
+                _this2.hunt.is_open = true;
+                window.scrollTo({ top: 0 });
+            });
+        },
+        deleteHunt: function deleteHunt() {
+            var _this3 = this;
+
+            axios.delete('/hunts/' + this.hunt.id).then(function (response) {
+                _this3.$emit('success', response.data.successMessage);
+                window.scrollTo({ top: 0 });
+            });
+        },
+        createGoal: function createGoal() {
+            var _this4 = this;
+
+            this.errors = [];
+            axios.post('/hunts/' + this.hunt.id + '/goals', { title: this.goalTitle }).then(function (response) {
+                _this4.$emit('success', response.data.successMessage);
+                _this4.goalTitle = '';
+                _this4.hunt.goals.push(response.data.goal);
+            }, function (error) {
+                var errors = error.response.data.errors;
+                for (var field in errors) {
+                    _this4.errors = _this4.errors.concat(errors[field]);
+                }
+            });
+        },
+        deleteGoal: function deleteGoal(goalId, index) {
+            var _this5 = this;
+
+            axios.delete('/hunts/' + this.hunt.id + '/goals/' + goalId).then(function (response) {
+                _this5.$emit('success', response.data.successMessage);
+                _this5.hunt.goals.splice(index, 1);
+                window.scrollTo({ top: 0 });
+            });
+        }
+    }
+});
+
+/***/ }),
+/* 42 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.hunt
+    ? _c("div", { staticClass: "container" }, [
+        _c("div", { staticClass: "row justify-content-center" }, [
+          _c("div", { staticClass: "col-md-8" }, [
+            _c("div", { staticClass: "card" }, [
+              _c("div", { staticClass: "card-header" }, [
+                _c(
+                  "h1",
+                  [
+                    _vm._v(
+                      "\n                        " +
+                        _vm._s(_vm.hunt.name) +
+                        "\n                        "
+                    ),
+                    _vm.hunt.is_closed
+                      ? [_c("em", [_vm._v("- closed")])]
+                      : _vm._e()
+                  ],
+                  2
+                ),
+                _vm._v(" "),
+                _c("small", [
+                  _vm._v("Owned by: "),
+                  _c("em", [_vm._v(_vm._s(_vm.hunt.owner.name))])
+                ]),
+                _vm._v(" "),
+                _vm.hunt.winner_id
+                  ? _c("div", { staticClass: "alert alert-success mt-3" }, [
+                      _c("h4", { staticClass: "mb-0" }, [
+                        _vm._v("Winner: " + _vm._s(_vm.hunt.winner.name))
+                      ])
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("div", { staticClass: "mt-3" }, [
+                  _vm.hunt.is_open
+                    ? _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-secondary",
+                          attrs: { title: "Close Scavenger Hunt" },
+                          on: { click: _vm.closeHunt }
+                        },
+                        [
+                          _vm._v("\n                            Close   "),
+                          _c("i", { staticClass: "fas fa-door-closed" })
+                        ]
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _vm.hunt.is_closed
+                    ? _c(
+                        "button",
+                        {
+                          staticClass: "btn btn-secondary",
+                          attrs: { title: "Reopen Scavenger Hunt" },
+                          on: { click: _vm.reopenHunt }
+                        },
+                        [
+                          _vm._v("\n                            Reopen   "),
+                          _c("i", { staticClass: "fas fa-door-open" })
+                        ]
+                      )
+                    : _vm._e(),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-danger",
+                      attrs: { title: "Delete Scavenger Hunt", type: "submit" },
+                      on: { click: _vm.deleteHunt }
+                    },
+                    [
+                      _vm._v("\n                            Delete   "),
+                      _c("i", { staticClass: "fas fa-trash" })
+                    ]
+                  ),
+                  _vm._v(" "),
+                  _c(
+                    "a",
+                    {
+                      staticClass: "btn btn-primary",
+                      attrs: { href: "/hunts/" + _vm.hunt.id + "/solutions" }
+                    },
+                    [_vm._v("View Submitted Solutions")]
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _vm.errors.length
+                ? _c("div", { staticClass: "card-body" }, [
+                    _c("div", { staticClass: "alert alert-danger" }, [
+                      _c(
+                        "ul",
+                        { staticClass: "mb-0" },
+                        _vm._l(_vm.errors, function(error) {
+                          return _c("li", [_vm._v(_vm._s(error))])
+                        })
+                      )
+                    ])
+                  ])
+                : _vm._e(),
+              _vm._v(" "),
+              _c("div", { staticClass: "card-body" }, [
+                _c("h3", [_vm._v("Goals")]),
+                _vm._v(" "),
+                _vm.hunt.is_open
+                  ? _c(
+                      "form",
+                      {
+                        staticClass: "mb-3 mt-3",
+                        on: {
+                          submit: function($event) {
+                            $event.preventDefault()
+                            return _vm.createGoal($event)
+                          }
+                        }
+                      },
+                      [
+                        _c("div", { staticClass: "form-row" }, [
+                          _c("div", { staticClass: "col-12 col-sm-8" }, [
+                            _c("input", {
+                              directives: [
+                                {
+                                  name: "model",
+                                  rawName: "v-model",
+                                  value: _vm.goalTitle,
+                                  expression: "goalTitle"
+                                }
+                              ],
+                              staticClass: "form-control",
+                              attrs: {
+                                type: "text",
+                                placeholder: "Insert Goal Title..."
+                              },
+                              domProps: { value: _vm.goalTitle },
+                              on: {
+                                input: function($event) {
+                                  if ($event.target.composing) {
+                                    return
+                                  }
+                                  _vm.goalTitle = $event.target.value
+                                }
+                              }
+                            })
+                          ]),
+                          _vm._v(" "),
+                          _vm._m(0)
+                        ])
+                      ]
+                    )
+                  : _vm._e(),
+                _vm._v(" "),
+                _vm.hunt.goals.length
+                  ? _c(
+                      "ul",
+                      { staticClass: "list-group" },
+                      _vm._l(_vm.hunt.goals, function(goal, index) {
+                        return _c("li", { staticClass: "list-group-item" }, [
+                          _vm.hunt.is_open
+                            ? _c(
+                                "div",
+                                {
+                                  staticClass:
+                                    "d-flex justify-content-between align-items-center"
+                                },
+                                [
+                                  _c("strong", [_vm._v(_vm._s(goal.title))]),
+                                  _vm._v(" "),
+                                  _c(
+                                    "button",
+                                    {
+                                      staticClass: "border-0 bg-transparent",
+                                      attrs: {
+                                        title: "Delete Goal",
+                                        type: "submit"
+                                      },
+                                      on: {
+                                        click: function($event) {
+                                          _vm.deleteGoal(goal.id, index)
+                                        }
+                                      }
+                                    },
+                                    [_c("i", { staticClass: "fas fa-trash" })]
+                                  )
+                                ]
+                              )
+                            : _c("strong", [_vm._v(_vm._s(goal.title))])
+                        ])
+                      })
+                    )
+                  : _c("ul", { staticClass: "list-group" }, [_vm._m(1)])
+              ])
+            ])
+          ])
+        ])
+      ])
+    : _vm._e()
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "col-12 col-sm-4" }, [
+      _c("input", {
+        staticClass: "form-control btn btn-primary",
+        attrs: { type: "submit", value: "Create A Goal" }
+      })
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("li", { staticClass: "list-group-item" }, [
+      _c("em", [_vm._v("This Scavenger Hunt does not have any goals yet.")])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-23e5728f", module.exports)
+  }
+}
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(44)
+/* template */
+var __vue_template__ = __webpack_require__(45)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/ShowParticipant.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-6777e7e2", Component.options)
+  } else {
+    hotAPI.reload("data-v-6777e7e2", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 44 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data: function data() {
+        return {
+            successMessage: '',
+            errors: [],
+            hunt: null,
+            currentUserId: null,
+            currentSolutionForm: null
+        };
+    },
+    mounted: function mounted() {
+        this.hunt = window.currentHunt;
+        this.currentUserId = window.currentUserId;
+    },
+
+
+    methods: {
+        userSolution: function userSolution(goal) {
+            var _this = this;
+
+            return goal.solutions.find(function (solution) {
+                return solution.user_id === _this.currentUserId;
+            }) || false;
+        },
+        showSolutionForm: function showSolutionForm(goalId) {
+            this.currentSolutionForm = this.currentSolutionForm === goalId ? null : goalId;
+        },
+        joinHunt: function joinHunt(id, index) {
+            var _this2 = this;
+
+            axios.post('/hunts/' + id + '/users/' + this.currentUserId).then(function (response) {
+                _this2.successMessage = response.data.successMessage;
+                _this2.hunt.includes_current_user = true;
+                window.scrollTo({ top: 0 });
+            });
+        },
+
+        addOrEditSolution: function addOrEditSolution(goal, index) {
+            var _this3 = this;
+
+            var data = new FormData();
+            var input = document.getElementById('solution-image-' + goal.id);
+            if (input.files.length) {
+                data.append('image', input.files[0]);
+            }
+            if (this.userSolution(goal)) {
+                data.append('_method', 'PATCH');
+                axios.post('/goals/' + goal.id + '/solutions/' + this.userSolution(goal).id, data).then(function (response) {
+                    var solution_index = _this3.hunt.goals[index].solutions.findIndex(function (solution) {
+                        return solution.id === response.data.solution.id;
+                    });
+                    _this3.$set(_this3.hunt.goals[index].solutions, solution_index, response.data.solution);
+                });
+            } else {
+                axios.post('/goals/' + goal.id + '/solutions', data).then(function (response) {
+                    _this3.hunt.goals[index].solutions.push(response.data.solution);
+                });
+            }
+        }
+    }
+});
+
+/***/ }),
+/* 45 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.hunt
+    ? _c("div", { staticClass: "container" }, [
+        _c("div", { staticClass: "row justify-content-center" }, [
+          _c("div", { staticClass: "col-md-8" }, [
+            _c("div", { staticClass: "card" }, [
+              _c("div", { staticClass: "card-header" }, [
+                _c(
+                  "h1",
+                  [
+                    _vm._v(
+                      "\n                        " +
+                        _vm._s(_vm.hunt.name) +
+                        "\n                        "
+                    ),
+                    _vm.hunt.is_closed
+                      ? [_c("em", [_vm._v("- closed")])]
+                      : _vm._e()
+                  ],
+                  2
+                ),
+                _vm._v(" "),
+                _c("small", [
+                  _vm._v("Owned by: "),
+                  _c("em", [_vm._v(_vm._s(_vm.hunt.owner.name))])
+                ]),
+                _vm._v(" "),
+                _vm.hunt.winner_id
+                  ? _c("div", { staticClass: "alert alert-success mt-3" }, [
+                      _c("h4", { staticClass: "mb-0" }, [
+                        _vm._v("Winner: " + _vm._s(_vm.hunt.winner.name))
+                      ])
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                !_vm.hunt.includes_current_user && _vm.hunt.is_open
+                  ? _c(
+                      "button",
+                      {
+                        staticClass: "btn btn-secondary",
+                        attrs: { title: "Join Scavenger Hunt" },
+                        on: {
+                          click: function($event) {
+                            _vm.joinHunt(_vm.hunt.id)
+                          }
+                        }
+                      },
+                      [
+                        _vm._v("\n                        Join "),
+                        _c("i", { staticClass: "fas fa-user-plus" })
+                      ]
+                    )
+                  : _vm._e()
+              ]),
+              _vm._v(" "),
+              _vm.errors.length
+                ? _c("div", { staticClass: "card-body" }, [
+                    _c("div", { staticClass: "alert alert-danger" }, [
+                      _c(
+                        "ul",
+                        { staticClass: "mb-0" },
+                        _vm._l(_vm.errors, function(error) {
+                          return _c("li", [_vm._v(_vm._s(error))])
+                        })
+                      )
+                    ])
+                  ])
+                : _vm._e(),
+              _vm._v(" "),
+              _c("div", { staticClass: "card-body" }, [
+                _c("h3", [_vm._v("Goals")]),
+                _vm._v(" "),
+                !_vm.hunt.goals.length
+                  ? _c("ul", { staticClass: "list-group" }, [_vm._m(0)])
+                  : _vm.hunt.includes_current_user
+                    ? _c(
+                        "ul",
+                        { staticClass: "list-group" },
+                        _vm._l(_vm.hunt.goals, function(goal, index) {
+                          return _c("li", { staticClass: "list-group-item" }, [
+                            _c(
+                              "div",
+                              {
+                                staticClass:
+                                  "d-flex justify-content-between align-items-center"
+                              },
+                              [
+                                _vm._v(
+                                  "\n                                " +
+                                    _vm._s(goal.title)
+                                ),
+                                _c("hr"),
+                                _vm._v(" "),
+                                _vm.hunt.is_open
+                                  ? _c(
+                                      "button",
+                                      {
+                                        staticClass: "border-0 bg-transparent",
+                                        attrs: { type: "button" },
+                                        on: {
+                                          click: function($event) {
+                                            _vm.showSolutionForm(goal.id)
+                                          }
+                                        }
+                                      },
+                                      [
+                                        _c("i", {
+                                          class:
+                                            "fas " +
+                                            (_vm.userSolution(goal)
+                                              ? "fa-edit"
+                                              : "fa-plus-circle"),
+                                          staticStyle: { cursor: "pointer" }
+                                        })
+                                      ]
+                                    )
+                                  : _vm._e()
+                              ]
+                            ),
+                            _vm._v(" "),
+                            _vm.userSolution(goal)
+                              ? _c(
+                                  "div",
+                                  {
+                                    staticClass:
+                                      "alert alert-secondary mt-2 d-flex justify-content-between align-items-start"
+                                  },
+                                  [
+                                    _c("span", [_vm._v("Your solution: ")]),
+                                    _c("img", {
+                                      staticStyle: {
+                                        height: "auto",
+                                        width: "50%"
+                                      },
+                                      attrs: {
+                                        src: _vm.userSolution(goal).imageSrc
+                                      }
+                                    })
+                                  ]
+                                )
+                              : _vm._e(),
+                            _vm._v(" "),
+                            _vm.hunt.is_open
+                              ? _c(
+                                  "div",
+                                  {
+                                    directives: [
+                                      {
+                                        name: "show",
+                                        rawName: "v-show",
+                                        value:
+                                          _vm.currentSolutionForm === goal.id,
+                                        expression:
+                                          "currentSolutionForm === goal.id"
+                                      }
+                                    ],
+                                    staticClass: "mt-3",
+                                    attrs: {
+                                      id: "goal-solution-form" + goal.id
+                                    }
+                                  },
+                                  [
+                                    _c(
+                                      "form",
+                                      {
+                                        attrs: {
+                                          method: "POST",
+                                          enctype: "multipart/form-data"
+                                        },
+                                        on: {
+                                          submit: function($event) {
+                                            $event.preventDefault()
+                                            _vm.addOrEditSolution(goal, index)
+                                          }
+                                        }
+                                      },
+                                      [
+                                        _c("div", { staticClass: "form-row" }, [
+                                          _c(
+                                            "div",
+                                            { staticClass: "col-12 col-sm-8" },
+                                            [
+                                              _c("input", {
+                                                staticClass:
+                                                  "form-control-file",
+                                                attrs: {
+                                                  type: "file",
+                                                  id:
+                                                    "solution-image-" + goal.id,
+                                                  name: "image"
+                                                }
+                                              })
+                                            ]
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "div",
+                                            { staticClass: "col-12 col-sm-4" },
+                                            [
+                                              _vm.userSolution(goal)
+                                                ? _c("input", {
+                                                    staticClass:
+                                                      "form-control btn btn-primary",
+                                                    attrs: {
+                                                      type: "submit",
+                                                      value: "Update Solution"
+                                                    }
+                                                  })
+                                                : _c("input", {
+                                                    staticClass:
+                                                      "form-control btn btn-primary",
+                                                    attrs: {
+                                                      type: "submit",
+                                                      value: "Submit A Solution"
+                                                    }
+                                                  })
+                                            ]
+                                          )
+                                        ])
+                                      ]
+                                    )
+                                  ]
+                                )
+                              : _vm._e()
+                          ])
+                        })
+                      )
+                    : _c(
+                        "ul",
+                        { staticClass: "list-group" },
+                        _vm._l(_vm.hunt.goals, function(goal) {
+                          return _c("li", { staticClass: "list-group-item" }, [
+                            _vm._v(
+                              "\n                            " +
+                                _vm._s(goal.title) +
+                                "\n                        "
+                            )
+                          ])
+                        })
+                      )
+              ])
+            ])
+          ])
+        ])
+      ])
+    : _vm._e()
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("li", { staticClass: "list-group-item" }, [
+      _c("em", [_vm._v("This Scavenger Hunt does not have any goals yet.")])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-6777e7e2", module.exports)
+  }
+}
+
+/***/ }),
+/* 46 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(1)
+/* script */
+var __vue_script__ = __webpack_require__(47)
+/* template */
+var __vue_template__ = __webpack_require__(48)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/ShowSolutions.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-2b14d476", Component.options)
+  } else {
+    hotAPI.reload("data-v-2b14d476", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 47 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data: function data() {
+        return {
+            hunt: null
+        };
+    },
+    mounted: function mounted() {
+        this.hunt = window.currentHunt;
+    },
+
+
+    methods: {
+        chooseWinner: function chooseWinner(participantId) {
+            var _this = this;
+
+            axios.patch('/hunts/' + this.hunt.id, { winner_id: participantId }).then(function (response) {
+                _this.successMessage = response.data.successMessage;
+                _this.hunt.winner = _this.hunt.participants.find(function (participant) {
+                    return participant.id === participantId;
+                });
+                _this.hunt.winner_id = participantId;
+                _this.hunt.status = 'closed';
+                window.scrollTo({ top: 0 });
+            });
+        }
+    }
+});
+
+/***/ }),
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _vm.hunt
+    ? _c("div", { staticClass: "container" }, [
+        _c("div", { staticClass: "row justify-content-center" }, [
+          _c("div", { staticClass: "col-md-8" }, [
+            _c("div", { staticClass: "card" }, [
+              _c("div", { staticClass: "card-header" }, [
+                _c("h1", [
+                  _vm._v(
+                    '\n                        Solutions for "' +
+                      _vm._s(_vm.hunt.name) +
+                      '"\n                    '
+                  )
+                ]),
+                _vm._v(" "),
+                _vm.hunt.winner_id
+                  ? _c("div", { staticClass: "alert alert-success mt-3" }, [
+                      _c("h4", { staticClass: "mb-0" }, [
+                        _vm._v("Winner: " + _vm._s(_vm.hunt.winner.name))
+                      ])
+                    ])
+                  : _vm._e(),
+                _vm._v(" "),
+                _c("div", { staticClass: "mt-3" }, [
+                  _c(
+                    "a",
+                    {
+                      staticClass: "btn btn-primary",
+                      attrs: { href: "/hunts/" + _vm.hunt.id }
+                    },
+                    [
+                      _c("i", { staticClass: "fas fa-arrow-left" }),
+                      _vm._v("  Back To Goals")
+                    ]
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _c(
+                "div",
+                { staticClass: "card-body" },
+                [
+                  _c("h3", [_vm._v("Submitted Solutions")]),
+                  _vm._v(" "),
+                  _vm._l(_vm.hunt.participants, function(participant) {
+                    return _c("div", { staticClass: "card mb-3" }, [
+                      _c(
+                        "div",
+                        {
+                          class:
+                            "card-header d-flex justify-content-between align-items-center " +
+                            (_vm.hunt.winner_id === participant.id
+                              ? "text-success"
+                              : "")
+                        },
+                        [
+                          _c("h4", { staticClass: "mb-0" }, [
+                            _vm._v(_vm._s(participant.name))
+                          ]),
+                          _vm._v(" "),
+                          _vm.hunt.winner_id === participant.id
+                            ? _c("h5", { staticClass: "mb-0" }, [
+                                _c("em", [_vm._v("Winner")])
+                              ])
+                            : _vm._e(),
+                          _vm._v(" "),
+                          !_vm.hunt.winner_id && _vm.hunt.is_open
+                            ? _c(
+                                "button",
+                                {
+                                  staticClass: "border-0 bg-transparent",
+                                  attrs: { title: "Choose Winner" },
+                                  on: {
+                                    click: function($event) {
+                                      _vm.chooseWinner(participant.id)
+                                    }
+                                  }
+                                },
+                                [_c("i", { staticClass: "fas fa-trophy" })]
+                              )
+                            : _vm._e()
+                        ]
+                      ),
+                      _vm._v(" "),
+                      _c("div", { staticClass: "card-body" }, [
+                        _c(
+                          "div",
+                          { staticClass: "card-columns mt-3" },
+                          _vm._l(participant.solutions, function(solution) {
+                            return solution.goal.hunt_id === _vm.hunt.id
+                              ? _c("div", { staticClass: "card" }, [
+                                  _c("div", { staticClass: "card-body" }, [
+                                    _c(
+                                      "h5",
+                                      { staticClass: "card-title mb-0" },
+                                      [_vm._v(_vm._s(solution.goal.title))]
+                                    )
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("img", {
+                                    staticClass: "card-img-bottom",
+                                    attrs: { src: solution.imageSrc }
+                                  })
+                                ])
+                              : _vm._e()
+                          })
+                        )
+                      ])
+                    ])
+                  }),
+                  _vm._v(" "),
+                  !_vm.hunt.participants.length
+                    ? _c("div", { staticClass: "card" }, [_vm._m(0)])
+                    : _vm._e()
+                ],
+                2
+              )
+            ])
+          ])
+        ])
+      ])
+    : _vm._e()
+}
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "card-body" }, [
+      _c("p", { staticClass: "card-text" }, [
+        _vm._v("This Scavenger Hunt does not have any participants yet.")
+      ])
+    ])
+  }
+]
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-2b14d476", module.exports)
   }
 }
 
