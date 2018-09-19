@@ -36,7 +36,7 @@
             <div class="card">
                 <div class="card-header">Other Scavenger Hunts</div>
                 <ul v-if="otherHunts.length" class="list-group list-group-flush">
-                    <li v-for="hunt in otherHunts" class="list-group-item d-flex justify-content-between align-items-center">
+                    <li v-for="(hunt, index) in otherHunts" class="list-group-item d-flex justify-content-between align-items-center">
                         <span>
                             <a :href="'/hunts/' + hunt.id">
                                 @{{ hunt.name }}
@@ -50,7 +50,7 @@
                             v-if="!hunt.includes_current_user && hunt.is_open"
                             title="Join Scavenger Hunt"
                             class="btn btn-secondary"
-                            @click="joinHunt(hunt.id)">
+                            @click="joinHunt(hunt.id, index)">
                             Join <i class="fas fa-user-plus"></i>
                         </button>
 
@@ -58,7 +58,7 @@
                             v-else-if="hunt.is_open"
                             title="Leave Scavenger Hunt"
                             class="btn btn-secondary"
-                            @click="leaveHunt(hunt.id)">
+                            @click="leaveHunt(hunt.id, index)">
                             Leave <i class="fas fa-sign-out-alt"></i>
                         </button>
                     </li>
@@ -77,19 +77,26 @@
         data: {
             ownedHunts: @json($owned_hunts),
             otherHunts: @json($other_hunts),
-            currentUserId: {{ auth()->id() }}
+            currentUserId: {{ auth()->id() }},
+            successMessage: '',
         },
         methods: {
-            joinHunt(id) {
+            joinHunt(id, index) {
+                var vm = this;
                 axios.post('/hunts/' + id + '/users/' + this.currentUserId)
                     .then(function (response) {
-                        console.log(response);
+                        vm.successMessage = response.data.successMessage;
+                        vm.otherHunts[index].includes_current_user = true;
+                        window.scrollTo({top: 0});
                     });
             },
-            leaveHunt(id) {
+            leaveHunt(id, index) {
+                var vm = this;
                 axios.delete('/hunts/' + id + '/users/' + this.currentUserId)
                     .then(function (response) {
-                        console.log(response);
+                        vm.successMessage = response.data.successMessage;
+                        vm.otherHunts[index].includes_current_user = false;
+                        window.scrollTo({top: 0});
                     });
             }
         }

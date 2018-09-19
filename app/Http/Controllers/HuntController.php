@@ -164,7 +164,7 @@ class HuntController extends Controller
         );
 
         $hunt->participants()->detach($user);
-        return redirect()->back()->with('success', 'You successfully left the Scavenger Hunt "' . $hunt->name . '".');
+        return response()->json(['successMessage' => 'You successfully left the Scavenger Hunt "' . $hunt->name . '".']);
     }
 
     /**
@@ -180,6 +180,6 @@ class HuntController extends Controller
         abort_if($hunt->isClosed, 422);
 
         $hunt->participants()->attach($user);
-        return redirect()->route('hunt.show', ['hunt' => $hunt->id])->with('success', 'You successfully joined the Scavenger Hunt "' . $hunt->name . '".');
+        return response()->json(['successMessage' => 'You successfully joined the Scavenger Hunt "' . $hunt->name . '".']);
     }
 }
