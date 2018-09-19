@@ -13,6 +13,8 @@ class Hunt extends Model
         'winner_id' => 'integer',
     ];
 
+    protected $appends = ['includes_current_user', 'is_open', 'is_closed'];
+
     public function owner()
     {
         return $this->belongsTo('App\User', 'owner_id');
@@ -51,5 +53,10 @@ class Hunt extends Model
     public function getIsClosedAttribute()
     {
         return $this->status === 'closed';
+    }
+
+    public function getIncludesCurrentUserAttribute()
+    {
+        return $this->includesUser(auth()->user());
     }
 }
