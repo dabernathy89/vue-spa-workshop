@@ -13,6 +13,8 @@ class Solution extends Model
         'goal_id' => 'integer',
     ];
 
+    protected $appends = ['imageSrc'];
+
     public function goal()
     {
         return $this->belongsTo('App\Goal');

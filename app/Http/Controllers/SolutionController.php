@@ -53,7 +53,10 @@ class SolutionController extends Controller
         ]);
         $goal->solutions()->save($solution);
 
-        return redirect()->back()->with('success', 'You successfully added a solution.');
+        return response()->json([
+            'successMessage' => 'You successfully added a solution.',
+            'solution' => $solution
+        ]);
     }
 
     /**
@@ -101,7 +104,10 @@ class SolutionController extends Controller
             'image' => $request->file('image')->store(null, 'public')
         ]);
 
-        return redirect()->back()->with('success', 'You successfully updated a solution.');
+        return response()->json([
+            'successMessage' => 'You successfully updated a solution.',
+            'solution' => $solution
+        ]);
     }
 
     /**
