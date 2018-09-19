@@ -4,6 +4,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
+            <h1>Testing: @{{ title }}</h1>
             @guest
                 <div class="jumbotron text-center">
                     <h1 class="display-5">Welcome to Scavenger Hunt!</h1>
@@ -68,4 +69,15 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('js')
+<script>
+    new Vue({
+        el: '#app',
+         data: {
+            title: "I'm using Vue.js!",
+        }
+    });
+</script>
 @endsection
