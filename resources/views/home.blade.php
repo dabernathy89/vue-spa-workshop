@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <home @success="success"></home>
+    <router-view @success="success"></router-view>
 @endsection
 
 @section('js')
