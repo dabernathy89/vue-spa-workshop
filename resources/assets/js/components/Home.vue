@@ -74,9 +74,22 @@
             }
         },
 
+        beforeRouteEnter (to, from, next) {
+            let ownedHunts;
+            let otherHunts;
+            axios.get('/api/ownedHunts').then(response => {
+                ownedHunts = response.data;
+                return axios.get('/api/otherHunts')
+            }).then(response => {
+                otherHunts = response.data;
+                next(vm => {
+                    vm.ownedHunts = ownedHunts;
+                    vm.otherHunts = otherHunts;
+                });
+            });
+        },
+
         mounted() {
-            this.ownedHunts = window.ownedHunts;
-            this.otherHunts = window.otherHunts;
             this.currentUserId = window.currentUserId;
         },
 

@@ -184,4 +184,14 @@ class HuntController extends Controller
         $hunt->participants()->attach($user);
         return response()->json(['successMessage' => 'You successfully joined the Scavenger Hunt "' . $hunt->name . '".']);
     }
+
+    public function ownedHunts()
+    {
+        return auth()->user()->ownedHunts;
+    }
+
+    public function otherHunts()
+    {
+        return Hunt::where('owner_id', '!=', auth()->id())->get();
+    }
 }

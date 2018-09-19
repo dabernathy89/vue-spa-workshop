@@ -103,6 +103,10 @@
         </main>
     </div>
 
+    <script>
+        window.currentUserId = {{ auth()->id() ?? 'null' }};
+    </script>
+
     @yield('js')
 </body>
 </html>

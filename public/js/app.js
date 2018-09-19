@@ -16004,9 +16004,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             currentUserId: null
         };
     },
+    beforeRouteEnter: function beforeRouteEnter(to, from, next) {
+        var ownedHunts = void 0;
+        var otherHunts = void 0;
+        axios.get('/api/ownedHunts').then(function (response) {
+            ownedHunts = response.data;
+            return axios.get('/api/otherHunts');
+        }).then(function (response) {
+            otherHunts = response.data;
+            next(function (vm) {
+                vm.ownedHunts = ownedHunts;
+                vm.otherHunts = otherHunts;
+            });
+        });
+    },
     mounted: function mounted() {
-        this.ownedHunts = window.ownedHunts;
-        this.otherHunts = window.otherHunts;
         this.currentUserId = window.currentUserId;
     },
 

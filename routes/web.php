@@ -16,6 +16,8 @@ Auth::routes();
 Route::get('/', 'HomeController@index')->name('home');
 
 Route::group(['middleware' => ['auth']], function () {
+    Route::get('/api/ownedHunts', 'HuntController@ownedHunts')->name('hunt.owned');
+    Route::get('/api/otherHunts', 'HuntController@otherHunts')->name('hunt.other');
     Route::get('/hunts', 'HuntController@index')->name('hunt.index');
     Route::get('/hunts/create', 'HomeController@index')->name('hunt.create');
     Route::post('/hunts', 'HuntController@store')->name('hunt.store');
