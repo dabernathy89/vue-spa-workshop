@@ -1,9 +1,5 @@
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
+<div v-if="errors.length" class="alert alert-danger">
+    <ul class="mb-0">
+        <li v-for="error in errors">@{{ error }}</li>
+    </ul>
+</div>

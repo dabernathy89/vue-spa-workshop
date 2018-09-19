@@ -9,11 +9,10 @@
 
                 <div class="card-body">
                     @include('partials.errors')
-                    <form action="{{ route('hunt.store') }}" method="POST">
-                        @csrf
+                    <form @submit.prevent="createHunt">
                         <div class="form-group">
                             <label for="name">Scavenger Hunt Name</label>
-                            <input class="form-control" type="text" name="name" placeholder="My Cool Scavenger Hunt">
+                            <input v-model="huntName" class="form-control" type="text" placeholder="My Cool Scavenger Hunt">
                         </div>
 
                         <input class="btn btn-primary" type="submit" value="Submit">
@@ -23,4 +22,33 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('js')
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            successMessage: '',
+            huntName: '',
+            errors: [],
+        },
+        methods: {
+            createHunt: function () {
+                var vm = this;
+                this.errors = [];
+                axios.post('/hunts', {name: this.huntName})
+                    .then(function (response) {
+                        vm.successMessage = response.data.successMessage;
+                        vm.huntName = '';
+                    }, function (error) {
+                        var errors = error.response.data.errors;
+                        for (field in errors) {
+                            vm.errors = vm.errors.concat(errors[field]);
+                        }
+                    });
+            }
+        }
+    });
+</script>
 @endsection

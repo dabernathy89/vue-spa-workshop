@@ -46,7 +46,7 @@ class HuntController extends Controller
             'status' => 'open',
         ], $input));
 
-        return redirect()->route('home')->with('success', 'You successfully created the Scavenger Hunt "' . $hunt->name . '".');
+        return response()->json(['successMessage' => 'You successfully created the Scavenger Hunt "' . $hunt->name . '".']);
     }
 
     /**
