@@ -4,7 +4,6 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <h1>Testing: @{{ title }}</h1>
             @guest
                 <div class="jumbotron text-center">
                     <h1 class="display-5">Welcome to Scavenger Hunt!</h1>
@@ -16,28 +15,22 @@
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     My Scavenger Hunts
-                    @if (!$owned_hunts->isEmpty())
-                        <a class="btn btn-primary" href="{{ route('hunt.create') }}">
-                            Create <i class="fas fa-plus-square"></i>
-                        </a>
-                    @endif
+                    <a v-if="ownedHunts.length" class="btn btn-primary" href="/hunts/create/">
+                        Create <i class="fas fa-plus-square"></i>
+                    </a>
                 </div>
-                @if (!$owned_hunts->isEmpty())
-                    <ul class="list-group list-group-flush">
-                        @foreach($owned_hunts as $hunt)
-                            <li class="list-group-item">
-                                <a href="{{ route('hunt.show', ['hunt' => $hunt->id]) }}">
-                                    {{ $hunt->name }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                @else
-                    <div class="card-body">
-                        <p>It looks like you don't currently own any scavenger hunts. Create one now:</p>
-                        <a class="btn btn-primary" href="{{ route('hunt.create') }}">Create A Scavenger Hunt</a>
-                    </div>
-                @endif
+
+                <ul v-if="ownedHunts.length" class="list-group list-group-flush">
+                    <li v-for="hunt in ownedHunts" class="list-group-item">
+                        <a :href="'hunts/' + hunt.id">
+                            @{{ hunt.name }}
+                        </a>
+                    </li>
+                </ul>
+                <div v-else class="card-body">
+                    <p>It looks like you don't currently own any scavenger hunts. Create one now:</p>
+                    <a class="btn btn-primary" href="/hunts/create">Create A Scavenger Hunt</a>
+                </div>
             </div>
 
             <div class="card">
@@ -75,8 +68,8 @@
 <script>
     new Vue({
         el: '#app',
-         data: {
-            title: "I'm using Vue.js!",
+        data: {
+            ownedHunts: @json($owned_hunts),
         }
     });
 </script>
