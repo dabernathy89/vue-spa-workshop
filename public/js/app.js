@@ -977,6 +977,12 @@ window.axios = __webpack_require__(11);
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 window.Vue = __webpack_require__(30);
 
+Vue.component('home', __webpack_require__(33));
+
+var app = new Vue({
+    el: '#app'
+});
+
 /***/ }),
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -13093,6 +13099,464 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(4)))
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+var normalizeComponent = __webpack_require__(34)
+/* script */
+var __vue_script__ = __webpack_require__(35)
+/* template */
+var __vue_template__ = __webpack_require__(36)
+/* template functional */
+var __vue_template_functional__ = false
+/* styles */
+var __vue_styles__ = null
+/* scopeId */
+var __vue_scopeId__ = null
+/* moduleIdentifier (server only) */
+var __vue_module_identifier__ = null
+var Component = normalizeComponent(
+  __vue_script__,
+  __vue_template__,
+  __vue_template_functional__,
+  __vue_styles__,
+  __vue_scopeId__,
+  __vue_module_identifier__
+)
+Component.options.__file = "resources/assets/js/components/Home.vue"
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-6707e3d4", Component.options)
+  } else {
+    hotAPI.reload("data-v-6707e3d4", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports) {
+
+/* globals __VUE_SSR_CONTEXT__ */
+
+// IMPORTANT: Do NOT use ES2015 features in this file.
+// This module is a runtime utility for cleaner component module output and will
+// be included in the final webpack user bundle.
+
+module.exports = function normalizeComponent (
+  rawScriptExports,
+  compiledTemplate,
+  functionalTemplate,
+  injectStyles,
+  scopeId,
+  moduleIdentifier /* server only */
+) {
+  var esModule
+  var scriptExports = rawScriptExports = rawScriptExports || {}
+
+  // ES6 modules interop
+  var type = typeof rawScriptExports.default
+  if (type === 'object' || type === 'function') {
+    esModule = rawScriptExports
+    scriptExports = rawScriptExports.default
+  }
+
+  // Vue.extend constructor export interop
+  var options = typeof scriptExports === 'function'
+    ? scriptExports.options
+    : scriptExports
+
+  // render functions
+  if (compiledTemplate) {
+    options.render = compiledTemplate.render
+    options.staticRenderFns = compiledTemplate.staticRenderFns
+    options._compiled = true
+  }
+
+  // functional template
+  if (functionalTemplate) {
+    options.functional = true
+  }
+
+  // scopedId
+  if (scopeId) {
+    options._scopeId = scopeId
+  }
+
+  var hook
+  if (moduleIdentifier) { // server build
+    hook = function (context) {
+      // 2.3 injection
+      context =
+        context || // cached call
+        (this.$vnode && this.$vnode.ssrContext) || // stateful
+        (this.parent && this.parent.$vnode && this.parent.$vnode.ssrContext) // functional
+      // 2.2 with runInNewContext: true
+      if (!context && typeof __VUE_SSR_CONTEXT__ !== 'undefined') {
+        context = __VUE_SSR_CONTEXT__
+      }
+      // inject component styles
+      if (injectStyles) {
+        injectStyles.call(this, context)
+      }
+      // register component module identifier for async chunk inferrence
+      if (context && context._registeredComponents) {
+        context._registeredComponents.add(moduleIdentifier)
+      }
+    }
+    // used by ssr in case component is cached and beforeCreate
+    // never gets called
+    options._ssrRegister = hook
+  } else if (injectStyles) {
+    hook = injectStyles
+  }
+
+  if (hook) {
+    var functional = options.functional
+    var existing = functional
+      ? options.render
+      : options.beforeCreate
+
+    if (!functional) {
+      // inject component registration as beforeCreate hook
+      options.beforeCreate = existing
+        ? [].concat(existing, hook)
+        : [hook]
+    } else {
+      // for template-only hot-reload because in that case the render fn doesn't
+      // go through the normalizer
+      options._injectStyles = hook
+      // register for functioal component in vue file
+      options.render = function renderWithStyleInjection (h, context) {
+        hook.call(context)
+        return existing(h, context)
+      }
+    }
+  }
+
+  return {
+    esModule: esModule,
+    exports: scriptExports,
+    options: options
+  }
+}
+
+
+/***/ }),
+/* 35 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+    data: function data() {
+        return {
+            ownedHunts: [],
+            otherHunts: [],
+            currentUserId: null,
+            successMessage: ''
+        };
+    },
+    mounted: function mounted() {
+        this.ownedHunts = window.ownedHunts;
+        this.otherHunts = window.otherHunts;
+        this.currentUserId = window.currentUserId;
+    },
+
+
+    methods: {
+        joinHunt: function joinHunt(id, index) {
+            var _this = this;
+
+            axios.post('/hunts/' + id + '/users/' + this.currentUserId).then(function (response) {
+                _this.successMessage = response.data.successMessage;
+                _this.otherHunts[index].includes_current_user = true;
+                window.scrollTo({ top: 0 });
+            });
+        },
+        leaveHunt: function leaveHunt(id, index) {
+            var _this2 = this;
+
+            axios.delete('/hunts/' + id + '/users/' + this.currentUserId).then(function (response) {
+                _this2.successMessage = response.data.successMessage;
+                _this2.otherHunts[index].includes_current_user = false;
+                window.scrollTo({ top: 0 });
+            });
+        }
+    }
+});
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", { staticClass: "container" }, [
+    _c("div", { staticClass: "row justify-content-center" }, [
+      _c("div", { staticClass: "col-md-8" }, [
+        !_vm.currentUserId
+          ? _c("div", { staticClass: "jumbotron text-center" }, [
+              _c("h1", { staticClass: "display-5" }, [
+                _vm._v("Welcome to Scavenger Hunt!")
+              ]),
+              _vm._v(" "),
+              _c("p", { staticClass: "lead" }, [
+                _vm._v("Sign up or log in to get started.")
+              ])
+            ])
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.currentUserId
+          ? _c("div", { staticClass: "card mb-3" }, [
+              _c(
+                "div",
+                {
+                  staticClass:
+                    "card-header d-flex justify-content-between align-items-center"
+                },
+                [
+                  _vm._v(
+                    "\n                    My Scavenger Hunts\n                    "
+                  ),
+                  _vm.ownedHunts.length
+                    ? _c(
+                        "a",
+                        {
+                          staticClass: "btn btn-primary",
+                          attrs: { href: "/hunts/create/" }
+                        },
+                        [
+                          _vm._v("\n                        Create "),
+                          _c("i", { staticClass: "fas fa-plus-square" })
+                        ]
+                      )
+                    : _vm._e()
+                ]
+              ),
+              _vm._v(" "),
+              _vm.ownedHunts.length
+                ? _c(
+                    "ul",
+                    { staticClass: "list-group list-group-flush" },
+                    _vm._l(_vm.ownedHunts, function(hunt) {
+                      return _c("li", { staticClass: "list-group-item" }, [
+                        _c("a", { attrs: { href: "hunts/" + hunt.id } }, [
+                          _vm._v(
+                            "\n                            " +
+                              _vm._s(hunt.name) +
+                              "\n                        "
+                          )
+                        ])
+                      ])
+                    })
+                  )
+                : _c("div", { staticClass: "card-body" }, [
+                    _c("p", [
+                      _vm._v(
+                        "It looks like you don't currently own any scavenger hunts. Create one now:"
+                      )
+                    ]),
+                    _vm._v(" "),
+                    _c(
+                      "a",
+                      {
+                        staticClass: "btn btn-primary",
+                        attrs: { href: "/hunts/create" }
+                      },
+                      [_vm._v("Create A Scavenger Hunt")]
+                    )
+                  ])
+            ])
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.currentUserId
+          ? _c("div", { staticClass: "card" }, [
+              _c("div", { staticClass: "card-header" }, [
+                _vm._v("Other Scavenger Hunts")
+              ]),
+              _vm._v(" "),
+              _vm.otherHunts.length
+                ? _c(
+                    "ul",
+                    { staticClass: "list-group list-group-flush" },
+                    _vm._l(_vm.otherHunts, function(hunt, index) {
+                      return _c(
+                        "li",
+                        {
+                          staticClass:
+                            "list-group-item d-flex justify-content-between align-items-center"
+                        },
+                        [
+                          _c(
+                            "span",
+                            [
+                              _c(
+                                "a",
+                                { attrs: { href: "/hunts/" + hunt.id } },
+                                [
+                                  _vm._v(
+                                    "\n                                " +
+                                      _vm._s(hunt.name) +
+                                      "\n                            "
+                                  )
+                                ]
+                              ),
+                              _vm._v(" "),
+                              hunt.is_closed
+                                ? [
+                                    _vm._v(
+                                      "\n                                - "
+                                    ),
+                                    _c("em", [_vm._v("closed")])
+                                  ]
+                                : _vm._e()
+                            ],
+                            2
+                          ),
+                          _vm._v(" "),
+                          !hunt.includes_current_user && hunt.is_open
+                            ? _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-secondary",
+                                  attrs: { title: "Join Scavenger Hunt" },
+                                  on: {
+                                    click: function($event) {
+                                      _vm.joinHunt(hunt.id, index)
+                                    }
+                                  }
+                                },
+                                [
+                                  _vm._v("\n                            Join "),
+                                  _c("i", { staticClass: "fas fa-user-plus" })
+                                ]
+                              )
+                            : hunt.is_open
+                              ? _c(
+                                  "button",
+                                  {
+                                    staticClass: "btn btn-secondary",
+                                    attrs: { title: "Leave Scavenger Hunt" },
+                                    on: {
+                                      click: function($event) {
+                                        _vm.leaveHunt(hunt.id, index)
+                                      }
+                                    }
+                                  },
+                                  [
+                                    _vm._v(
+                                      "\n                            Leave "
+                                    ),
+                                    _c("i", {
+                                      staticClass: "fas fa-sign-out-alt"
+                                    })
+                                  ]
+                                )
+                              : _vm._e()
+                        ]
+                      )
+                    })
+                  )
+                : _vm._e()
+            ])
+          : _vm._e()
+      ])
+    ])
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+module.exports = { render: render, staticRenderFns: staticRenderFns }
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+    require("vue-hot-reload-api")      .rerender("data-v-6707e3d4", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);
